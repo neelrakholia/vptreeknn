@@ -1,0 +1,75 @@
+\def\germ{\frak} \def\scr{\cal} \ifx\documentclass\undefinedcs
+  \def\bf{\fam\bffam\tenbf}\def\rm{\fam0\tenrm}\fi % f**k-amstex!
+  \def\defaultdefine#1#2{\expandafter\ifx\csname#1\endcsname\relax
+  \expandafter\def\csname#1\endcsname{#2}\fi} \defaultdefine{Bbb}{\bf}
+  \defaultdefine{frak}{\bf} \defaultdefine{=}{\B} % doublef**k-amstex!!
+  \defaultdefine{mathfrak}{\frak} \defaultdefine{mathbb}{\bf}
+  \defaultdefine{mathcal}{\cal}
+  \defaultdefine{beth}{BETH}\defaultdefine{cal}{\bf} \def\bbfI{{\Bbb I}}
+  \def\mbox{\hbox} \def\text{\hbox} \def\om{\omega} \def\Cal#1{{\bf #1}}
+  \def\pcf{pcf} \defaultdefine{cf}{cf} \defaultdefine{reals}{{\Bbb R}}
+  \defaultdefine{real}{{\Bbb R}} \def\restriction{{|}} \def\club{CLUB}
+  \def\w{\omega} \def\exist{\exists} \def\se{{\germ se}} \def\bb{{\bf b}}
+  \def\equivalence{\equiv} \let\lt< \let\gt>
+\begin{thebibliography}{10}
+
+\bibitem{Blackard98}
+Jock~A. Blackard.
+\newblock {UCI} machine learning repository, 1998.
+
+\bibitem{Dasgupta15}
+Sanjoy Dasgupta and Kaushik Sinha.
+\newblock Randomized partition trees for nearest neighbor search.
+\newblock {\em Algorithmica}, 72(1):237--263, 2015.
+
+\bibitem{Nayar08}
+Neeraj Kumar, Li~Zhang, and Shree Nayar.
+\newblock What is a good nearest neighbors algorithm for finding similar
+  patches in images?
+\newblock In David Forsyth, Philip Torr, and Andrew Zisserman, editors, {\em
+  Computer Vision – ECCV 2008}, volume 5303 of {\em Lecture Notes in Computer
+  Science}, pages 364--378. Springer Berlin Heidelberg, 2008.
+
+\bibitem{MarchXB14}
+William~B. March, Bo~Xiao, and George Biros.
+\newblock {ASKIT:} approximate skeletonization kernel-independent treecode in
+  high dimensions.
+\newblock {\em CoRR}, abs/1410.0260, 2014.
+
+\bibitem{Marimont79}
+R.~B. Marimont and M.~B. Shapiro.
+\newblock Nearest neighbour searches and the curse of dimensionality.
+\newblock {\em IMA Journal of Applied Mathematics}, 24(1):59--70, 1979.
+
+\bibitem{Moon11}
+Logan Moon, Daniel Long, Shreyas Joshi, Vyomkesh Tripathi, Bo~Xiao, and George
+  Biros.
+\newblock Poster: parallel algorithms for clustering and nearest neighbor
+  search problems in high dimensions.
+\newblock In {\em Conference on High Performance Computing Networking, Storage
+  and Analysis - Companion Volume, {SC} 2011, Seattle, WA, USA, November 12-18,
+  2011}, pages 57--58, 2011.
+
+\bibitem{Phillips10}
+Jeff~M. Phillips and Suresh Venkatasubramanian.
+\newblock A gentle introduction to the kernel distance.
+\newblock {\em CoRR}, abs/1103.1625, 2011.
+
+\bibitem{Tsuda04}
+Koji Tsuda and Bernhard Schölkopf.
+\newblock A primer on kernel methods.
+\newblock In {\em in Kernel Methods in Computational}, pages 35--70. MIT Press,
+  2004.
+
+\bibitem{Whiteson2014}
+Daniel Whiteson.
+\newblock {UCI} machine learning repository, 2014.
+
+\bibitem{Yianilos93}
+Peter~N. Yianilos.
+\newblock Data structures and algorithms for nearest neighbor search in general
+  metric spaces.
+\newblock In {\em Proceedings of the Fifth Annual ACM-SIAM Symposium on
+  Discrete Algorithms (SODA)}, 1993.
+
+\end{thebibliography}

@@ -1,0 +1,145 @@
+@Preamble{"\def\germ{\frak} \def\scr{\cal}
+ \ifx\documentclass\undefinedcs
+      \def\bf{\fam\bffam\tenbf}\def\rm{\fam0\tenrm}\fi
+                          % f**k-amstex!
+ \def\defaultdefine#1#2{\expandafter\ifx\csname#1\endcsname\relax
+ \expandafter\def\csname#1\endcsname{#2}\fi}
+ \defaultdefine{Bbb}{\bf}   \defaultdefine{frak}{\bf}
+  \defaultdefine{=}{\B}   % doublef**k-amstex!!
+  \defaultdefine{mathfrak}{\frak}
+       \defaultdefine{mathbb}{\bf}
+       \defaultdefine{mathcal}{\cal}
+      \defaultdefine{beth}{BETH}\defaultdefine{cal}{\bf}
+     \def\bbfI{{\Bbb I}}   \def\mbox{\hbox}  \def\text{\hbox}
+   \def\om{\omega}    \def\Cal#1{{\bf #1}} \def\pcf{pcf}
+        \defaultdefine{cf}{cf}
+    \defaultdefine{reals}{{\Bbb R}} \defaultdefine{real}{{\Bbb R}}
+   \def\restriction{{|}}  \def\club{CLUB}
+   \def\w{\omega} \def\exist{\exists}
+   \def\se{{\germ se}}     \def\bb{{\bf b}}
+   \def\equivalence{\equiv}
+   \let\lt<  \let\gt>
+           "}
+
+@InProceedings{Yianilos93,
+author = {Peter N. Yianilos},
+year = 1993,
+title = {Data Structures and Algorithms for Nearest Neighbor Search in General Metric Spaces},
+booktitle = {Proceedings of the Fifth Annual ACM-SIAM Symposium on Discrete Algorithms (SODA)},
+}
+
+@incollection{Nayar08,
+year={2008},
+isbn={978-3-540-88685-3},
+booktitle={Computer Vision – ECCV 2008},
+volume={5303},
+series={Lecture Notes in Computer Science},
+editor={Forsyth, David and Torr, Philip and Zisserman, Andrew},
+doi={10.1007/978-3-540-88688-4_27},
+title={What Is a Good Nearest Neighbors Algorithm for Finding Similar Patches in Images?},
+url={http://dx.doi.org/10.1007/978-3-540-88688-4_27},
+publisher={Springer Berlin Heidelberg},
+author={Kumar, Neeraj and Zhang, Li and Nayar, Shree},
+pages={364-378},
+language={English}
+}
+
+@article{Phillips10,
+  author    = {Jeff M. Phillips and
+               Suresh Venkatasubramanian},
+  title     = {A Gentle Introduction to the Kernel Distance},
+  journal   = {CoRR},
+  volume    = {abs/1103.1625},
+  year      = {2011},
+  url       = {http://arxiv.org/abs/1103.1625},
+  timestamp = {Mon, 05 Dec 2011 18:05:15 +0100},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/corr/abs-1103-1625},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@inproceedings{Moon11,
+  author    = {Logan Moon and
+               Daniel Long and
+               Shreyas Joshi and
+               Vyomkesh Tripathi and
+               Bo Xiao and
+               George Biros},
+  title     = {Poster: parallel algorithms for clustering and nearest neighbor search
+               problems in high dimensions},
+  booktitle = {Conference on High Performance Computing Networking, Storage and Analysis
+               - Companion Volume, {SC} 2011, Seattle, WA, USA, November 12-18, 2011},
+  pages     = {57--58},
+  year      = {2011},
+  url       = {http://doi.acm.org/10.1145/2148600.2148630},
+  doi       = {10.1145/2148600.2148630},
+  timestamp = {Mon, 09 Dec 2013 17:20:14 +0100},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/conf/sc/MoonLJTXB11},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@article{MarchXB14,
+  author    = {William B. March and
+               Bo Xiao and
+               George Biros},
+  title     = {{ASKIT:} Approximate Skeletonization Kernel-Independent Treecode in
+               High Dimensions},
+  journal   = {CoRR},
+  volume    = {abs/1410.0260},
+  year      = {2014},
+  url       = {http://arxiv.org/abs/1410.0260},
+  timestamp = {Sun, 02 Nov 2014 11:25:59 +0100},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/corr/MarchXB14},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@article{Marimont79,
+author = {Marimont, R. B. and Shapiro, M. B.}, 
+title = {Nearest Neighbour Searches and the Curse of Dimensionality},
+volume = {24}, 
+number = {1}, 
+pages = {59-70}, 
+year = {1979}, 
+doi = {10.1093/imamat/24.1.59},  
+URL = {http://imamat.oxfordjournals.org/content/24/1/59.abstract}, 
+eprint = {http://imamat.oxfordjournals.org/content/24/1/59.full.pdf+html}, 
+journal = {IMA Journal of Applied Mathematics} 
+}
+
+@article{Dasgupta15,
+year={2015},
+issn={0178-4617},
+journal={Algorithmica},
+volume={72},
+number={1},
+doi={10.1007/s00453-014-9885-5},
+title={Randomized Partition Trees for Nearest Neighbor Search},
+url={http://dx.doi.org/10.1007/s00453-014-9885-5},
+publisher={Springer US},
+keywords={Nearest neighbor; Intrinsic dimension; Spatial partition; k-d tree; Random projection},
+author={Dasgupta, Sanjoy and Sinha, Kaushik},
+pages={237-263},
+language={English}
+}
+
+@misc{Whiteson2014,
+author = "Daniel Whiteson",
+year = "2014",
+title = "{UCI} Machine Learning Repository",
+url = "http://archive.ics.uci.edu/ml",
+institution = "University of California, Irvine, School of Information and Computer Sciences" }
+
+@INPROCEEDINGS{Tsuda04,
+    author = {Koji Tsuda and Bernhard Schölkopf},
+    title = {A primer on kernel methods},
+    booktitle = {in Kernel Methods in Computational},
+    year = {2004},
+    pages = {35--70},
+    publisher = {MIT Press}
+}
+
+@misc{Blackard98 ,
+author = "Jock A. Blackard",
+year = "1998",
+title = "{UCI} Machine Learning Repository",
+url = "http://archive.ics.uci.edu/ml",
+institution = "University of California, Irvine, School of Information and Computer Sciences" }
