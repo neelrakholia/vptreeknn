@@ -36,12 +36,16 @@ for i = 2:sublen+1
         for t_ind = 2:len2+1
             
             % indices in s2 such that s1(s_ind) matches entry of s2
-            s2_inds = find(s1(s_ind-1) == s2(1:t_ind-1));
+            s2_inds = find(ismember(s2(1:t_ind-1),s1(s_ind-1)));
+            
+            if(~isempty(s2_inds))
             
             % sum over prev K' to get new K'
             Kp(s_ind, t_ind, i) = Kp(s_ind, t_ind, i) + ...
                 sum(Kp(s_ind-1, s2_inds, i-1) * ...
-                lambda.^(t_ind-1 - s2_inds + 2)');        
+                lambda.^(t_ind-1 - s2_inds + 2)');
+            
+            end
 
         end
     end
@@ -52,8 +56,10 @@ K = zeros(len1+1, 1);
 
 % loop over first string length
 for s_ind = 2:len1+1
+    
     % update K
-    K(s_ind) = K(s_ind-1) + sum(Kp(s_ind-1, (s1(s_ind-1) == s2), end-1), 2)...
+    K(s_ind) = K(s_ind-1) + sum(Kp(s_ind-1, ...
+        find(ismember(s2(1:t_ind-1),s1(s_ind-1))), end-1), 2)...
     * lambda^2;
 end
 

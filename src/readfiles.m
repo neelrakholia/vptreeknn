@@ -24,8 +24,10 @@ cd(oldpath);
 
 % process all the strings and return them
 mstr = cell(1,nfiles);
+strarr = [];
 for i = 1:nfiles
     mstr{i} = processstr(vals{i});
+    strarr = unique(cat(2,mstr{i},strarr));
 end
 
 end
@@ -91,5 +93,6 @@ stopwords = {'a', 'about', 'above', 'above', 'across', 'after', ...
 
 split1 = regexp(pstring,'\s','Split');
 pstring = strjoin(split1(~ismember(split1,stopwords)),' ');
+pstring = strsplit(pstring);
 
 end
