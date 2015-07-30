@@ -1,3 +1,5 @@
+% NOTE: THIS FILE IS NO LONGER USED IN OUR METHOD. FOR INFORMATIONAL
+% PURPOSES ONLY.
 classdef bsttree_pq < handle
     
     properties

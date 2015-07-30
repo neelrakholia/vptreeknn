@@ -1,3 +1,5 @@
+% NOTE: THIS FILE IS NO LONGER USED IN OUR METHOD. FOR INFORMATIONAL
+% PURPOSES ONLY.
 % source: https://sites.google.com/site/radhacr/academics/projects/software
 % "Approximate Kernel k-means: Solution to Large Scale Kernel Clustering"
 % Krect - m X N rectangular kernel matrix  
