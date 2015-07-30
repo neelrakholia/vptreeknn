@@ -1,4 +1,5 @@
 function [result, K] = ssk_fast(s,t,p,lambda)
+%--------------------------------------------------------------------------
 %SSK_FAST
 %        -Finds the string subsequence kernel count between strings s and t
 %         by using a recursive programming implementation,
@@ -38,7 +39,7 @@ function [result, K] = ssk_fast(s,t,p,lambda)
 %Written and tested in Matlab 6.0, Release 12.
 %Copyright 2003, Manju M. Pai 4/2003
 %manju@kernel-methods.net
-%------------------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 
 %Obtain lengths of strings
 [num_rows_s, n] = size(s);
