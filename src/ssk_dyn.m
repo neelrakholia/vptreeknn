@@ -69,7 +69,7 @@ for i = 2:sublen+1
 
             for j = s2_inds
                Kp(s_ind, t_ind, i) = Kp(s_ind, t_ind, i) + Kp(s_ind-1, j, i-1) * lambda^(t_ind-1 - j + 2);
-            end
+            end            
             
         end
         
@@ -83,16 +83,18 @@ K = zeros(len1+1, 1);
 for s_ind = 2:len1+1
 
 %     fprintf('finding %s in %s\n', s1(s_ind-1), s2);
-    s2_inds = find(s1(s_ind-1) == s2);
+%     s2_inds = find(s1(s_ind-1) == s2);
     
-    K(s_ind) = K(s_ind-1);
+%     K(s_ind) = K(s_ind-1);
 
-    for j = s2_inds
-    
-        K(s_ind) = K(s_ind) + Kp(s_ind-1, j, end-1) * lambda^2; 
+%     for j = s2_inds
+%     
+%         K(s_ind) = K(s_ind) + Kp(s_ind-1, j, end-1) * lambda^2; 
+% 
+%     end
 
-    end
-    
+    K(s_ind) = K(s_ind-1) + sum(Kp(s_ind-1, (s1(s_ind-1) == s2), end-1), 2) * lambda^2;
+
 end
 
 k = K(end);

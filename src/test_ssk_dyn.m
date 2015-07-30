@@ -7,10 +7,10 @@ lambda = 0.5;
 
 for n = 1:6
 
-%     tic 
-%     k_ssk = ssk_fast(s1, s2, n, lambda);
-%     toc
-%     fprintf('ssk_fast: %g\n', k_ssk);
+     tic 
+     k_ssk = ssk_fast(s1, s2, n, lambda);
+     toc
+     fprintf('ssk_fast: %g\n', k_ssk);
 
 
     tic
