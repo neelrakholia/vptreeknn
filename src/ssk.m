@@ -1,10 +1,13 @@
 function value = ssk(s1, s2, sublen, lambda)
 %--------------------------------------------------------------------------
 % SSK Computes the vakue of string subsequence kernel using recursion
-%   s1 - string A
-%   s2 - string B
-%   sublen - length of subsequence
-%   lambda - tuning parameter
+%   Input
+%       s1 - string A
+%       s2 - string B
+%       sublen - length of subsequence
+%       lambda - tuning parameter
+%   Ouput
+%       value - evaluated kernel value
 %--------------------------------------------------------------------------
 % base case
 if(isempty(s1) == 1 || isempty(s2) == 1)

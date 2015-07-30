@@ -3,16 +3,20 @@ function randomvp(qpoints, dbpoints, nquery, npoints, k, nt, sig, ...
 %--------------------------------------------------------------------------
 % RANDOMVP Perform random vp tree nn search on given data for an rbf kernel
 % distance metric
-%   qpoints - the query data
-%   dbpoints - the database points
-%   nquery - number of query points
-%   npoints - number of database points
-%   k - number of nearest neighbors
-%   nt - number of trees to construct
-%   sig - kernel bandwidth
-%   mpnts - limit on the number of points allowed in the leaf
-%   mlvl - limit on the depth of the tree
-%   npiece - number of partitions for quadratic search
+%   Input
+%       qpoints - the query data
+%       dbpoints - the database points
+%       nquery - number of query points
+%       npoints - number of database points
+%       k - number of nearest neighbors
+%       nt - number of trees to construct
+%       sig - kernel bandwidth
+%       mpnts - limit on the number of points allowed in the leaf
+%       mlvl - limit on the depth of the tree
+%       npiece - number of partitions for quadratic search
+%
+%   Ouput
+%       Information about the run in printed
 %--------------------------------------------------------------------------
 
 % define test and train sets
