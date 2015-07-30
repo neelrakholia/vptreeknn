@@ -1,7 +1,6 @@
 function d = rbf(X, x, sigma)
 %--------------------------------------------------------------------------
 % RBF Evaluates pairwise RBF kernel distances between points in 2 arrays 
-% strings out of it
 %   Input 
 %       X - Array of points
 %       x - Array of points
