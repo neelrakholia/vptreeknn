@@ -54,8 +54,18 @@ Files:
 5) binread_array.m              Read binary files to an array
 
 
-% Files no used
+% Files not used
 
 Directory: ./src/obsolete/
 
-These files use an O(n^2) tree construction and are not used anymore
+These files use an O(n^2) tree construction and are not used anymor
+
+
+% Changes needed to be made to the report
+-Remove italics
+-Add stuff about backtracking
+-Inverse dist ratios
+-More implementation stuff
+-Say something string and graph kernels
+-Add merge experiments
+
