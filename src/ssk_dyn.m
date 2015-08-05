@@ -36,7 +36,7 @@ for i = 2:sublen+1
         for t_ind = 2:len2+1
             
             % indices in s2 such that s1(s_ind) matches entry of s2
-            s2_inds = find(ismember(s2(1:t_ind-1),s1(s_ind-1)));
+            s2_inds = find(strcmp(s2(1:t_ind-1),s1(s_ind-1)));
             
             if(~isempty(s2_inds))
             
@@ -59,7 +59,7 @@ for s_ind = 2:len1+1
     
     % update K
     K(s_ind) = K(s_ind-1) + sum(Kp(s_ind-1, ...
-        find(ismember(s2(1:t_ind-1),s1(s_ind-1))), end-1), 2)...
+        strcmp(s2(1:t_ind-1),s1(s_ind-1)), end-1), 2)...
     * lambda^2;
 end
 
