@@ -25,5 +25,6 @@ for i = 1:N
         d(i,j) = - 2 * ssk_dyn(X{i},x{j},sublen,sigma)/...
             sqrt(ssk_dyn(X{i},X{i},sublen,sigma)*...
             ssk_dyn(x{j},x{j},sublen,sigma));
+        d(i,j)
     end
 end
