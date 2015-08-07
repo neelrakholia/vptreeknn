@@ -38,15 +38,11 @@ for i = 2:sublen+1
             % indices in s2 such that s1(s_ind) matches entry of s2
             s2_inds = find(strcmp(s2(1:t_ind-1),s1(s_ind-1)));
             
-            if(~isempty(s2_inds))
-            
             % sum over prev K' to get new K'
             Kp(s_ind, t_ind, i) = Kp(s_ind, t_ind, i) + ...
                 sum(Kp(s_ind-1, s2_inds, i-1) * ...
                 lambda.^(t_ind-1 - s2_inds + 2)');
             
-            end
-
         end
     end
 end

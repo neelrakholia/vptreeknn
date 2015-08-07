@@ -30,9 +30,18 @@ test = data(test_ind);
 test_lab = labels(test_ind);
 
 % get global indices for data
-global_id = 1:20;%length(train);
+global_id = 1:length(train);
 
 % brute force search
 tic
-nn = kknn(train,global_id,test(371),0.5,10,length(train));
+nn = kknn(train,global_id,test(370),0.5,10,length(train));
+toc
+
+maxPointsPerNode = 4;
+maxLevel = 5;
+sigma = 0.5;
+
+% create tree
+tic
+root = bsttree_vp(train, global_id, maxPointsPerNode, maxLevel, sigma, 0, 0);
 toc
