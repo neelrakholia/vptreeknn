@@ -41,7 +41,7 @@ for i = 2:sublen+1
             % sum over prev K' to get new K'
             Kp(s_ind, t_ind, i) = Kp(s_ind, t_ind, i) + ...
                 sum(Kp(s_ind-1, s2_inds, i-1) * ...
-                lambda.^(t_ind-1 - s2_inds + 2)');
+                power(lambda,(t_ind-1 - s2_inds + 2))');
             
         end
     end
