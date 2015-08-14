@@ -42,7 +42,6 @@ for i = 2:sublen+1
             Kp(s_ind, t_ind, i) = Kp(s_ind, t_ind, i) + ...
                 sum(Kp(s_ind-1, s2_inds, i-1) * ...
                 power(lambda,(t_ind-1 - s2_inds + 2))');
-            
         end
     end
 end
@@ -57,6 +56,7 @@ for s_ind = 2:len1+1
     K(s_ind) = K(s_ind-1) + sum(Kp(s_ind-1, ...
         strcmp(s2(1:t_ind-1),s1(s_ind-1)), end-1), 2)...
     * lambda^2;
+
 end
 
 % Return answer

@@ -18,16 +18,22 @@ N = length(X);
 
 % initialize output array
 d = zeros(N,n);
+X_self = zeros(N,1);
+x_self = zeros(n,1);
 
 % pre-compute self kernel values
-x_self = cellfun(@(y) ssk_dyn(y,y,sublen,sigma),x);
-X_self = cellfun(@(y) ssk_dyn(y,y,sublen,sigma),X);
+for k = 1:n
+    x_self(k) = ssk_dyn(x{k},x{k},sublen,sigma);
+end
+
+for k = 1:N
+    X_self(k) = ssk_dyn(X{k},X{k},sublen,sigma);
+end
 
 % loop over the matrix and compute lengths
 for i = 1:N
     for j = 1:n
         d(i,j) = - 2 * ssk_dyn(X{i},x{j},sublen,sigma)/...
             sqrt(X_self(i)*x_self(j));
-        d(i,j)
     end
 end
