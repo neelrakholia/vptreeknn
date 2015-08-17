@@ -2,6 +2,9 @@
 
 rng(100);
 
+% compile mex file
+mex -outdir src/ src/ssk_dyn_mex.c 
+
 % add appropriate paths 
 clear globals; clc; clear all;
 addpath('src/')
@@ -32,16 +35,6 @@ test_lab = labels(test_ind);
 % get global indices for data
 global_id = 1:length(train);
 
-% brute force search
-tic
-nn = kknn(train,global_id,test(370),0.5,10,length(train));
-toc
-
-maxPointsPerNode = 4;
-maxLevel = 5;
-sigma = 0.5;
-
-% create tree
-tic
-root = bsttree_vp(train, global_id, maxPointsPerNode, maxLevel, sigma, 0, 0);
-toc
+% run random NN algo and see how it compares with quad search
+randomvp(train(1:10), test, 10, 372, 2, 5, 0.5, ...
+    20, 4, 1)
