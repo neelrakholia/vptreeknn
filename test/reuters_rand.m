@@ -36,8 +36,8 @@ test_lab = labels(test_ind);
 global_id = 1:length(train);
 
 % run random NN algo and see how it compares with quad search
-randomvp(train(1:20), test, 20, 372, 5, 3, 0.5, ...
-    20, 5, 1, train_lab(1:20), test_lab)
+randomvp(train, test, 92, 372, 5, 3, 0.5, ...
+    20, 5, 1, train_lab, test_lab)
 
 
 

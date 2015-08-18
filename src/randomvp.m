@@ -111,8 +111,10 @@ while(k <= ntree && acc < 0.9)
     fprintf('Accuracy: %f\n', suml/(m*K));
     
     if(nargin > 10)
-       fprintf('Classification accuracy: %f\n',sum(dblab(points(:,1))...
-           == qlab)/nquery);
+       fprintf('Classification accuracy for tree NN: %f\n',...
+           sum(dblab(points(:,1)) == qlab)/nquery);
+       fprintf('Classification accuracy for quad search: %f\n',...
+           sum(dblab(actual_nn(:,1)) == qlab)/nquery);
     end
     
     % display fraction of distance evaluations conducted while constructing
