@@ -1,5 +1,5 @@
 function randomvp(qpoints, dbpoints, nquery, npoints, k, nt, sig, ...
-    mpnts, mlvl, npiece)
+    mpnts, mlvl, npiece, qlab, dblab)
 %--------------------------------------------------------------------------
 % RANDOMVP Perform random vp tree nn search on given data for an rbf kernel
 % distance metric
@@ -14,6 +14,8 @@ function randomvp(qpoints, dbpoints, nquery, npoints, k, nt, sig, ...
 %       mpnts - limit on the number of points allowed in the leaf
 %       mlvl - limit on the depth of the tree
 %       npiece - number of partitions for quadratic search
+%       qlab - labels for query points
+%       dblab - labels for database points
 %
 %   Ouput
 %       Information about the run in printed
@@ -107,6 +109,11 @@ while(k <= ntree && acc < 0.9)
     % print accuracy
     acc = suml/(m*K);
     fprintf('Accuracy: %f\n', suml/(m*K));
+    
+    if(nargin > 10)
+       fprintf('Classification accuracy: %f\n',sum(dblab(points(:,1))...
+           == qlab)/nquery);
+    end
     
     % display fraction of distance evaluations conducted while constructing
     % the tree
