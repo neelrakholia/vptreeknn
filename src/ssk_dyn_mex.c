@@ -21,9 +21,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]) {
 
     // Check for appropriate input size
-    if(nrhs != 8) {
+    if(nrhs != 6) {
     mexErrMsgIdAndTxt("MyToolbox:ssk_dyn_mex:nrhs",
-                      "SEight inputs required.");
+                      "Six inputs required.");
     }
 
     if(nlhs != 1) {
@@ -38,42 +38,27 @@ void mexFunction(int nlhs, mxArray *plhs[],
     size_t len2;
     size_t sublen;
     double lambda;
-    size_t strlen1;
-    size_t strlen2;
     
     // get input variables
-    strlen1 = mxGetScalar(prhs[6]);
-    strlen2 = mxGetScalar(prhs[7]);
     len1 = mxGetScalar(prhs[1]);
     len2 = mxGetScalar(prhs[3]);
     
-    // define appropriate strings 
-    s1 = (char *)mxMalloc(strlen1 + 1);
-    s2 = (char *)mxMalloc(strlen2 + 1);
-    
-    // read strings
-    mxGetString(prhs[0], s1, (mwSize)(strlen1 + 1)); 
-    mxGetString(prhs[2], s2, (mwSize)(strlen2 + 1));
-    
-    // tokenize strings
-    // for string1
-    int i;
-    char *p;
+    // allocate arrays
     char **array1 = (char **)mxMalloc(sizeof(char *)*len1);
-    i = 0;
-    p = strtok(s1,",");
-    while (p != NULL) {
-        array1[i++] = p;
-        p = strtok(NULL, ",");
+    char **array2 = (char **)mxMalloc(sizeof(char *)*len2);
+    
+    // fill arrays
+    int i;
+    for(i = 0; i < len1; i++) {
+     
+        array1[i] = mxArrayToString(mxGetCell (prhs[0], i));
+        
     }
     
-    // for string2
-    char **array2 = (char **)mxMalloc(sizeof(char *)*len2);
-    i = 0;
-    p = strtok(s2,",");
-    while (p != NULL) {
-        array2[i++] = p;
-        p = strtok(NULL, ",");
+    for(i = 0; i < len2; i++) {
+     
+        array2[i] = mxArrayToString(mxGetCell (prhs[2], i));
+        
     }
     
     // get all the other inputs
@@ -84,10 +69,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[0] = mxCreateDoubleMatrix(1,1, mxREAL);
     double *b = mxGetPr(plhs[0]);
     *b = ssk_dyn(array1, len1, array2, len2, sublen, lambda);
-    
-    // Free heap space
-    mxFree(s1);
-    mxFree(s2);
+     
+    // free heap space
     mxFree(array1);
     mxFree(array2);
 }

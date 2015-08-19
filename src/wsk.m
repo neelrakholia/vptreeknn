@@ -23,24 +23,20 @@ x_self = zeros(n,1);
 
 % pre-compute self kernel values
 for k = 1:n
-    string1 = strjoin(x{k},',');
-    x_self(k) = ssk_dyn_mex(string1,length(x{k}),string1,length(x{k}),...
-        sublen,sigma,length(string1),length(string1));
+    x_self(k) = ssk_dyn_mex(x{k},length(x{k}),x{k},length(x{k}),...
+        sublen,sigma);
 end
 
 for k = 1:N
-    string1 = strjoin(X{k},',');
-    X_self(k) = ssk_dyn_mex(string1,length(X{k}),string1,length(X{k}),...
-        sublen,sigma,length(string1),length(string1));
+    X_self(k) = ssk_dyn_mex(X{k},length(X{k}),X{k},length(X{k}),...
+        sublen,sigma);
 end
 
 % loop over the matrix and compute lengths
 for i = 1:N
     for j = 1:n
-        string1 = strjoin(X{i},',');
-        string2 = strjoin(x{j},',');
-        d(i,j) = - 2 * ssk_dyn_mex(string1,length(X{i}),string2,...
-            length(x{j}),sublen,sigma,length(string1),length(string2))/...
+        d(i,j) = - 2 * ssk_dyn_mex(X{k},length(X{i}),x{k},...
+            length(x{j}),sublen,sigma)/...
             sqrt(X_self(i)*x_self(j));
     end
 end
