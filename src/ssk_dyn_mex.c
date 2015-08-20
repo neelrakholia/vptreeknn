@@ -40,8 +40,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double lambda;
     
     // get input variables
-    len1 = mxGetScalar(prhs[1]);
-    len2 = mxGetScalar(prhs[3]);
+    len1 = *mxGetPr(prhs[1]);
+    len2 = *mxGetPr(prhs[3]);
     
     // allocate arrays
     char **array1 = (char **)mxMalloc(sizeof(char *)*len1);
@@ -62,8 +62,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
     
     // get all the other inputs
-    sublen = mxGetScalar(prhs[4]);
-    lambda = mxGetScalar(prhs[5]);
+    sublen = *mxGetPr(prhs[4]);
+    lambda = *mxGetPr(prhs[5]);
     
     // generate output
     plhs[0] = mxCreateDoubleMatrix(1,1, mxREAL);
