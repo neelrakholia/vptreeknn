@@ -23,20 +23,18 @@ x_self = zeros(n,1);
 
 % pre-compute self kernel values
 for k = 1:n
-    x_self(k) = ssk_dyn_mex(x{k},length(x{k}),x{k},length(x{k}),...
-        sublen,sigma);
+%     x_self(k) = ssk_dyn(x{k},length(x{k}),x{k},length(x{k}),...
+%         sublen,sigma);
+    x_self(k) = ssk_dyn(x{k},x{k}, sublen,sigma);
 end
 
 for k = 1:N
-    X_self(k) = ssk_dyn_mex(X{k},length(X{k}),X{k},length(X{k}),...
-        sublen,sigma);
+    X_self(k) = ssk_dyn(X{k},X{k},sublen,sigma);
 end
 
 % loop over the matrix and compute lengths
 for i = 1:N
     for j = 1:n
-        d(i,j) = - 2 * ssk_dyn_mex(X{i},length(X{i}),x{j},...
-            length(x{j}),sublen,sigma)/...
-            sqrt(X_self(i)*x_self(j));
+        d(i,j) = - 2 * ssk_dyn(X{i},x{j},sublen,sigma)/sqrt(X_self(i)*x_self(j));
     end
 end

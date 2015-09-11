@@ -16,7 +16,7 @@ kerneltype = 'wsk';
 if(strcmp(kerneltype,'rbf'))
     d = rbf(X, x, sigma);
 else
-    d = wsk_mex(X, x, sigma, 2)';
+    d = wsk(X, x, sigma, 2);
 end
 
 end
