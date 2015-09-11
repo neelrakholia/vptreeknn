@@ -14,6 +14,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include "ssk_dyn.h"
+
+typedef uint16_t char16_t;
+
 #include "mex.h"
 #include "matrix.h"
 
@@ -55,10 +58,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     // compute self kernel values
     int k;
+    
+    // Define other arrays for storing intermediate values
+    mxArray *len1 = mxCreateNumericArray(1, dims, mxINT32_CLASS, mxREAL);
+    mxArray *len2 = mxCreateNumericArray(1, dims, mxINT32_CLASS, mxREAL);
+    
+    
+    // mexPrintf("loop over n\n");
     for(k = 0; k < n; k++) {
-        // Define other arrays for storing intermediate values
-        mxArray *len1 = mxCreateNumericArray(1, dims, mxINT32_CLASS, mxREAL);
-        mxArray *len2 = mxCreateNumericArray(1, dims, mxINT32_CLASS, mxREAL);
+        
+      // mexPrintf("loop over n, iter: %d\n", k);
         
         // Assign values to input for ssk_dyn_mex
         normInputs[0] = mxGetCell(prhs[1],k);
@@ -69,21 +78,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
         const int *dimen2 = mxGetDimensions(normInputs[2]);
         *mxGetPr(len2) = dimen2[1];
         normInputs[3] = len2;
+        // mexPrintf("Calling ssk_dyn_mex\n");
+      
         mexCallMATLAB(1,normOutputs,6,normInputs,"ssk_dyn_mex");
         
         // assign output value
         x_self[k] = *mxGetPr(normOutputs[0]);
         
-        // free memory
-        mxDestroyArray(len1);
-        mxDestroyArray(len2);
-        
     }
-    
+
+    // mexPrintf("loop over N\n");
     for(k = 0; k < N; k++) {
-        // Define other arrays for storing intermediate values
-        mxArray *len1 = mxCreateNumericArray(1, dims, mxINT32_CLASS, mxREAL);
-        mxArray *len2 = mxCreateNumericArray(1, dims, mxINT32_CLASS, mxREAL);
         
         // Assign values to input for ssk_dyn_mex
         normInputs[0] = mxGetCell(prhs[0],k);
@@ -99,32 +104,31 @@ void mexFunction(int nlhs, mxArray *plhs[],
         // assign output value
         X_self[k] = *mxGetPr(normOutputs[0]);
         
-        // free memory
-        mxDestroyArray(len1);
-        mxDestroyArray(len2);
-        
     }
-    
+      
     // compute all kernel values
     
     // initialize 2-d array
-    double d[N][n];
-    memset(d, 0, N*n*sizeof(double));
-    plhs[0] = mxCreateDoubleMatrix(n, N, mxREAL);
+    
+    // don't need d, just write to outputptr directly
+    // double d[N][n];
+    // memset(d, 0, N*n*sizeof(double));
+    plhs[0] = mxCreateDoubleMatrix(N, n, mxREAL);
     // get pointer to output array
     double *outputptr = mxGetPr(plhs[0]);
     
+    // mexPrintf("Nested loop \n");
+    
+
     // loop over all matrix and compute distances 
     int i,j,count;
     count = 0;
-    for(i = 0; i < N; i++) {
-     
-        for(j = 0; j < n; j++) {
+
+    // Need to output in row-order, so iterate over columns first 
+    for(j = 0; j < n; j++) {
             
-            // Define other arrays for storing intermediate values
-            mxArray *len1 = mxCreateNumericArray(1, dims, mxINT32_CLASS, mxREAL);
-            mxArray *len2 = mxCreateNumericArray(1, dims, mxINT32_CLASS, mxREAL);
-            
+      for(i = 0; i < N; i++) {
+       
             // Assign values to input for ssk_dyn_mex
             normInputs[0] = mxGetCell(prhs[0],i);
             const int *dimen = mxGetDimensions(normInputs[0]);
@@ -140,16 +144,15 @@ void mexFunction(int nlhs, mxArray *plhs[],
             double kvalue = *mxGetPr(normOutputs[0]);
 
             // compute kernel distance
-            d[i][j] = -2 * kvalue/(sqrt(X_self[i] * x_self[j]));
-            outputptr[count++] = d[i][j];
+            outputptr[count++] = -2.0 * kvalue/(sqrt(X_self[i] * x_self[j]));
                     
-            // free memory
-            mxDestroyArray(len1);
-            mxDestroyArray(len2);
-            
         }
         
     }
+    
+    // free memory
+    mxDestroyArray(len1);
+    mxDestroyArray(len2);
     
     // free memory for all arrays
     mxDestroyArray(normInputs[5]);
