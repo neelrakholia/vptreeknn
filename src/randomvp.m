@@ -67,7 +67,7 @@ k = 0;
 acc = 0;
 
 % iterate through all the the trees
-while(k <= ntree && acc < 0.9)
+while(k <= ntree && acc < 0.99)
     % construct tee
     tic
     root = bsttree_vp(train, 1:n, maxPointsPerNode, maxLevel, sigma, 0, 0);
