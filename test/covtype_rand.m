@@ -19,9 +19,9 @@ test = binread_array(filename, m*dim);
 test = reshape(test, dim, m);
 
 % sample data
-n = 416239;
-m = 40000;
+n = 100000;
+m = 10000;
 train = datasample(train, n, 2, 'Replace', false);
 test = datasample(test, m, 2, 'Replace', false);
 
-randomvp(test, train, m, n, 100, 100, 0.22, 2^10, 12, 1000);
+randomvp(test, train, m, n, 2, 100, 0.22, 100, 12, 1000);
