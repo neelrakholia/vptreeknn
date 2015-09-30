@@ -55,14 +55,14 @@ fprintf('finished compiling\n');
 
 %%
 
-num_train = floor(numel(train)/2);
-num_test = floor(numel(test)/2);
+num_train = 500;%floor(numel(train)/2);
+num_test = 2000;%floor(numel(test)/2);
 lambda = 0.5;
 order = 3;
 
 % run random NN algo and see how it compares with quad search
-randomvp(train(1:num_train), test(1:num_test), num_train, num_test, 10, 5, lambda, ...
-     50, 8, 1, train_lab(1:num_train), test_lab(1:num_test))
+randomvp(train(1:num_train), test(1:num_test), num_train, num_test, 10, 20, lambda, ...
+     20, 8, 1, train_lab(1:num_train), test_lab(1:num_test))
 
 % tic
 % K = wsk_mex(train(1:num_train), test(1:num_test), lambda, order);
