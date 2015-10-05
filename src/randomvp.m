@@ -65,6 +65,7 @@ disteval = 0;
 treeeval = 0;
 k = 0;
 acc = 0;
+total = 0;
 
 % iterate through all the the trees
 while(k <= ntree && acc < 0.99)
@@ -129,6 +130,8 @@ while(k <= ntree && acc < 0.99)
     fprintf('Distance evaluations: %f\n', disteval/(m*n));
     
     % display total number of distance evaluations:
+    total = disteval/(m*n) + ...
+        treeeval/(m*n);
     fprintf('Total distance evaluations: %f\n', disteval/(m*n) + ...
         treeeval/(m*n));
     
