@@ -6,30 +6,41 @@ addpath('../src/');
 
 %% generate data
 
-h = 10;
+filename = '~/covtype.libsvm.trn.X.bin';
+n = 499999;
+dim = 54;
+train = binread_array(filename, n*dim);
+train = reshape(train, dim, n);
 
-d = 4;
-N = 100;
+% read test
+filename = '~/covtype.libsvm.tst.X.bin';
+m = 80012;
+test = binread_array(filename, m*dim);
+test = reshape(test, dim, m);
 
-data = randn(d, N);
+% sample data
+N = 499999;
+Nq = 100;
+data = datasample(train, N, 2, 'Replace', false);
+queries = datasample(test, Nq, 2, 'Replace', false);
 
-% query set
-Nq = 2;
-queries = randn(d, Nq);
+
+h = 0.22;
 
 % search parameters
 
 max_iter = 100;
-tolerance = 0.95;
+tolerance = 0.99;
 max_dists = 1;
-max_points_per_node = 5;
-k = 3;
+max_points_per_node = 100;
+k = 10;
 maxLevel = 30;
-num_backtracks = 3;
+num_backtracks = 2;
 
 %% compute exact nearest neighbors 
 
 exact_nn = kknn(data, 1:N, queries, h, k, N);
+
 
 %%
 

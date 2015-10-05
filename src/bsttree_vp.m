@@ -267,40 +267,70 @@ classdef bsttree_vp < handle
         %------------------------------------------------------------------
             
     
-            current_dists = 10^20*ones(size(queries,2), 1);
-            current_levels = -1*ones(size(queries,2), 1);
-            backtracks_in = current_levels;
+    
+            num_queries = size(queries, 2);
+
+            backtracks_in = ones(num_queries,1) * -1;
+
+            backtrack_queues = cell(num_queries, 1); % cell array of java priority queues -- used for partial backtrackin search
+
+%             plot_colors = {'r', 'b', 'g', 'k'};
+%             figure()
+%             scatter(queries(1,1), queries(2,1), 200, 'm', 'x');
+%             hold on;    
+            
+            % just inserting this here so we don't have to track another 
+            % parameter
+            max_depth = 0;
+            node = root;
+            while (~isempty(node.left))
+               node = node.left;
+               max_depth = max_depth + 1;
+            end
+            
+            for q_ind = 1:num_queries
+               backtrack_queues{q_ind} = 10^10 * ones(max_depth, 2);
+            end
+            
+            back_ind = 0;
             
             fprintf('Initial call (no backtracks)\n');
             % do the initial call
-            [nn, dev, ~, current_levels] = root.PartialBacktrackingHelper(queries, h, global_ids, data, k, nn, prev, dev, ...
-                backtracks_in, current_dists, current_levels);        
-       
+            [nn, dev] = PartialBacktrackingHelper(root, queries, h, global_ids, data, k, nn, prev, dev, ...
+                backtracks_in, true);        
+
+            backtracks = -1 * ones(num_queries, num_backtracks);
+            % now, sort them
+            for q_ind = 1:num_queries
+%                 fprintf('backtrack queue %d: \n', q_ind);
+%                 backtrack_queues{q_ind}
+               [~, inds] = sort(backtrack_queues{q_ind}(:,2));
+               backtracks(q_ind, :) = backtrack_queues{q_ind}(inds(1:num_backtracks), 1);
+%                 fprintf('\n');
+            end
+            
+            
             % now we'll repeat the search, but with the alternative path
-            while (num_backtracks > 0)
-            
-                fprintf('Bactracks remaining: %d\n', num_backtracks);
+            for back_ind = 1:num_backtracks
+
+                prev = nn;
                 
-                backtracks_in = current_levels;
-                current_levels = -1 * ones(size(queries,2), 1);
-                current_dists = 10^20*ones(size(queries,2), 1);
-            
-                [nn, dev, ~, current_levels] = root.PartialBacktrackingHelper(queries, h, global_ids, data, k, nn, prev, dev, ...
-                    backtracks_in, current_dists, current_levels);        
-                num_backtracks = num_backtracks - 1;
+                 fprintf('Backtracks no: %d\n', back_ind);
+%                 backtracks(:,back_ind)
+%                 fprintf('\n');
+                
+                [nn, dev] = PartialBacktrackingHelper(root, queries, h, global_ids, data, k, nn, prev, dev, ...
+                    backtracks(:,back_ind), false);        
+               
                 
             end 
             
-            
-        end % function
-        
         
         % helper for the above, handles the recursion
         % backtracks are stored as a level (at which we go the other way)
         % for each query
-        function [nn, dev, current_dists_out, current_levels_out] = PartialBacktrackingHelper(root, queries, sigma, ...
-                global_id, data, k, nn, prev, dev, backtracks_in, current_dists, current_levels)
-            
+        function [nn, dev] = PartialBacktrackingHelper(root, queries, sigma, ...
+                global_id, data, k, nn, prev, dev, backtracks_in, store_backtracks)
             
             % base case
             % if the root is a leaf
@@ -310,6 +340,18 @@ classdef bsttree_vp < handle
                 search_id = unique([root.ind, prev_id]);
                 q = kknn(data, search_id, queries, sigma, k, numel(search_id));
 
+                
+                
+%                 if (~isempty(find(global_id == 1,1)))
+%                     scatter(root.data(1,:), root.data(2,:), [], plot_colors{back_ind+1});
+%                     
+%                     fprintf('Query 1 searching: \n');
+%                     dists = distk(queries(:,find(global_id == 1, 1)), data(:,root.ind), sigma);
+%                     root.ind
+%                     dists
+%                     q
+%                     
+%                 end                
                 % store nn
                 nn(global_id,:) = q;
                 
@@ -317,13 +359,24 @@ classdef bsttree_vp < handle
                 % TODO: don't want to repeat kernel evaluations here
                 dev = dev + numel(search_id)*numel(global_id);
 
-                % need to assign the backtrack stuff
-                current_dists_out = current_dists;
-                current_levels_out = current_levels;
-                
                 return;
                 
             end
+            
+            if(isempty(root.left))
+                % search for nn
+                prev_id = reshape(prev(global_id,:),1,k*numel(global_id));
+                search_id = unique([root.ind, prev_id]);
+                q = kknn(data, search_id, query, sigma, k, numel(search_id));
+
+                % store nn
+                nn(global_id,:) = q;
+                
+                % update computations
+                dev = dev + numel(search_id)*numel(global_id);
+                return;
+            end
+
             
             % get the radius and center
             radius = root.rad;
@@ -334,10 +387,15 @@ classdef bsttree_vp < handle
             larr = dist < radius;
 
             % update the backtrack checking for the next iteration
-            these_dists = abs(dist - radius);
-            current_levels(these_dists < current_dists) = root.ndepth;
-            current_dists(these_dists < current_dists) = these_dists(these_dists < current_dists);
-
+            if (store_backtracks)
+                these_dists = abs(dist - radius);
+                for i = 1:numel(these_dists)
+%                     fprintf('Adding to queue: [%d, %g]\n', root.ndepth, these_dists(i));
+                    backtrack_queues{global_id(i)}(root.ndepth+1, :) = [root.ndepth, these_dists(i)];
+                end
+            end
+            
+  
             % now we need to update these with backtracks
             % just flip the bit of anyone who needs to backtrack here
             larr(backtracks_in == root.ndepth) = ~larr(backtracks_in == root.ndepth);
@@ -345,42 +403,34 @@ classdef bsttree_vp < handle
             % get the right and left queries
             indl = find(larr);
             indr = find(~larr);
-            
-            % need this in case all the queries go the same way
-            left_dists_out = [];
-            right_dists_out = [];
-            left_levels_out = [];
-            right_levels_out = [];
-            
-            fprintf('\n');
-            indl 
-            indr
-            fprintf('\n');
+           
+%             fprintf('Call at node level: %d\n', root.ndepth);
+%             global_id
+%             indl
+%             indr
+%             backtracks_in
+%             fprintf('\n\n\n');
+
             
             % recursive call to whichever center is closer
             if(numel(indl) > 0)
                 % store data according to distance from query point
-                [nn,dev, left_dists_out, left_levels_out] = PartialBacktrackingHelper(root.left, queries(:,indl), sigma, ...
-                    global_id(indl), data, k, nn, prev, dev, backtracks_in(indl), current_dists(indl), current_levels(indl));
+                [nn,dev] = PartialBacktrackingHelper(root.left, queries(:,indl), sigma, ...
+                    global_id(indl), data, k, nn, prev, dev, backtracks_in(indl), store_backtracks);
             end
             if(numel(indr) > 0)
                 % store data according to distance from query point
-                [nn,dev, right_dists_out, right_levels_out] = PartialBacktrackingHelper(root.right, queries(:, indr), sigma, ...
-                    global_id(indr), data, k, nn, prev, dev, backtracks_in(indr), current_dists(indr), current_levels(indr));
+                [nn,dev] = PartialBacktrackingHelper(root.right, queries(:, indr), sigma, ...
+                    global_id(indr), data, k, nn, prev, dev, backtracks_in(indr), store_backtracks);
             end % end if
             
-            current_dists_out = zeros(size(queries, 2),1);
-            current_dists_out(indl) = left_dists_out;
-            current_dists_out(indr) = right_dists_out;
             
-            current_levels_out = zeros(size(queries, 2),1);
-            current_levels_out(indl) = left_levels_out;
-            current_levels_out(indr) = right_levels_out;
-            
-            
+        end % helper function
+        
+                    
         end % function
         
-        
+
         
     end % end methods
     
