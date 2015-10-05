@@ -15,7 +15,7 @@ function d = rbf(X, x, sigma)
 X2 = sum(X.^2,1);
 x2 = sum(x.^2,1);
 dotProd = X'*x;
-d = repmat(x2,N,1).^10 +repmat(X2',1,n).^10 -2*dotProd.^10;
+d = repmat(x2,N,1).^2 +repmat(X2',1,n).^2 -2*dotProd.^2;
 
 % evaluate kernel
 d = sqrt(d);
