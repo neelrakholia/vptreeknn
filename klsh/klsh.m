@@ -47,19 +47,19 @@ for i = 1:M
     
 
     % now, get the distances between the queries and their candidates
-    dists = zeros(num_queries, 2*B);
+    dists = 10^10 * ones(num_queries, 2*B);
     
     for j = 1:num_queries
 
         
-         lower_inds = find(Compact_query(j,:) <= sorted_ref, B);
+         lower_inds = find(Compact_query(j,:) < sorted_ref, B);
          upper_inds = find(Compact_query(j,:) >= sorted_ref, B, 'last');
 
          inds = sort_inds(union(lower_inds, upper_inds))';
 %         inds = binarySearch(sorted_ref, Compact_query(j,:));
 %         inds = unique(sort_inds(inds));
         
-        dists(j,:) = kernelfun(queries(:,j), references(:, inds));  
+        dists(j,1:numel(inds)) = kernelfun(queries(:,j), references(:, inds))';  
         total_comps = total_comps + numel(inds);
         
         [neighbor_dists(j,:), neighbor_inds(j,:)] = knn_update([neighbor_dists(j,:), dists(j,:)], [neighbor_inds(j,:), inds], k);

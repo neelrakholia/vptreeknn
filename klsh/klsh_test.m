@@ -1,5 +1,6 @@
 
 addpath '~/vptreeknn/src'
+clear
 
 % for debugging
 rng(1);
@@ -26,7 +27,7 @@ test = datasample(test, num_queries, 2, 'Replace', false);
 % sample data to form kernel matrix
 p = 300;
 b = 30;
-B = 1;
+B = 15;
 k = 10;
 
 epsilon = 1;
