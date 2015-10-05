@@ -1,27 +1,30 @@
-addpath '../vptreeknn/src'
+addpath '../src'
+
+% for debugging
+rng(1);
 
 % read train
-filename = 'covtype.libsvm.trn.X.bin';
+filename = '~/covtype.libsvm.trn.X.bin';
 n = 499999;
 dim = 54;
 train = binread_array(filename, n*dim);
 train = reshape(train, dim, n);
 
 % read test
-filename = 'covtype.libsvm.tst.X.bin';
+filename = '~/covtype.libsvm.tst.X.bin';
 m = 80012;
 test = binread_array(filename, m*dim);
 test = reshape(test, dim, m);
 
 % sample data
-n = 200000;
-m = 1000;
+n = 10000;
+m = 100;
 train = datasample(train, n, 2, 'Replace', false);
 test = datasample(test, m, 2, 'Replace', false);
 
 % sample data to form kernel matrix
-p = 5000;
-b = 300;
+p = 300;
+b = 30;
 rp = randperm(n);
 ptrain = train(:,rp(1:p));
 query = train(:,rp);
