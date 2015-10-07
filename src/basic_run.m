@@ -26,13 +26,23 @@ queries = datasample(test, Nq, 2, 'Replace', false);
 
 rng('shuffle')
 
+% d = 2;
+% N = 100;
+% Nq = 1;
+% 
+% data = randn(d,N);
+% queries = randn(d, Nq);
+
+
 %% kernel function
 
-h = 0.22;
+% h = 10;
 % kernel = @(x, y) rbf(x, y, h);
-kernel = @(x, y) poly(x, y, 1, 0, 10);
-% kernel = @(x,y) rbf_dist(x, y, h);
-% kernel = @(x, y) poly_dist(x, y, 1, 0, 10);
+% kernel_dist = @(x,y) rbf_dist(x, y, h);
+
+% kernel = @(x, y) poly(x, y, 1, 0, 2);
+kernel_dist = @(x, y) poly_dist(x, y, 1, 0, 2);
+kernel = @(x,y) -1 * kernel_dist(x,y);
 
 % search parameters
 
@@ -42,6 +52,7 @@ max_dists = 1;
 max_points_per_node = 1000;
 k = 10;
 maxLevel = 12;
+num_backtracks = 0;
 
 %% compute exact nearest neighbors 
 
@@ -49,8 +60,11 @@ exact_nn = kknn(data, 1:N, queries, kernel, k, N);
 
 %% do tree search
 
-[ rank_acc, dist_acc, tree_evals, search_evals, neighbors ] = randomvp_search( data, queries, kernel, ...
-    k, exact_nn, max_iter, tolerance, max_dists, max_points_per_node, maxLevel );
+global do_plot
+do_plot = false;
+
+[ rank_acc, dist_acc, search_evals, neighbors ] = randomvp_search( data, queries, kernel, kernel_dist, ...
+    k, exact_nn, max_iter, tolerance, max_dists, max_points_per_node, maxLevel, num_backtracks );
 
 
 

@@ -14,6 +14,8 @@ classdef bsttree_vp < handle
         ndepth = 0 % depth of the node
         dise = 0 % number of distance evaluations
         kernel % handle for kernel function evaluations
+        kernel_dist % handle for the distance version of the kernel function
+
     end
     
     properties  (SetAccess = private)
@@ -30,7 +32,7 @@ classdef bsttree_vp < handle
         % kernelf: rbf kernel bandwidth
         % depth:   intial depth of the tree
         % diseval: number of distance evaluations
-        function root = bsttree_vp(data, indi, msize, mdepth, kernel, ...
+        function root = bsttree_vp(data, indi, msize, mdepth, kernel, kernel_dist, ...
             depth, diseval)
         %------------------------------------------------------------------
         % BSTTREE_VP Initializes a vp-tree based on the given data
@@ -54,7 +56,11 @@ classdef bsttree_vp < handle
             root.ndepth = depth;
             root.ind = indi;
             root.kernel = kernel;
+            root.kernel_dist = kernel_dist;
+        
+global do_plot
             
+
             % check that nsize and ndepth are in acceptable range
             if(root.nsize <= msize || root.ndepth >= mdepth)
                 return;
@@ -64,14 +70,19 @@ classdef bsttree_vp < handle
                 % get classification and radius
                 [datal, datar, indl, indr, radi, cen, diseval] = ...
                     classify_vp(data, ...
-                    indi, root.nsize, kernel, diseval);
+                    indi, root.nsize, kernel_dist, diseval);
                 
                 % update disteval
                 root.dise = diseval;
                 
                 % assign vantage point
                 root.cent = cen;
-                
+
+                if (do_plot)
+                    plot_colors = {'r', 'b', 'g', 'k'};
+                    scatter(cen(1), cen(2), 200, plot_colors{depth+1}, 's');
+                end
+    
                 % assign points
                 lchild = datal;
                 rchild = datar;
@@ -81,9 +92,9 @@ classdef bsttree_vp < handle
                 
                 % recursively call bstrree on left and right node
                 root.left = bsttree_vp(lchild, indl, msize, mdepth, ...
-                    kernel, depth + 1, diseval);
+                    kernel, kernel_dist, depth + 1, diseval);
                 root.right = bsttree_vp(rchild, indr, msize, mdepth, ...
-                    kernel, depth + 1, diseval);
+                    kernel, kernel_dist, depth + 1, diseval);
             end % end if
         end % end function
         
@@ -205,7 +216,18 @@ classdef bsttree_vp < handle
         %       nn - nearest neighbors for current iteration
         %       dev - total number of distance evaluations in the search
         %------------------------------------------------------------------
+  
+        global do_plot
+
+          
+            % Some visualization that only works for d = 2
             
+            if (do_plot)
+                plot_colors = {'r', 'b', 'g', 'k'};
+                scatter(root.data(1,:), root.data(2,:), [], plot_colors{root.ndepth+1});
+            end
+            
+
             % base case
             % if the root is a leaf
             if(isempty(root.left))
@@ -227,7 +249,8 @@ classdef bsttree_vp < handle
             center = root.cent;
             
             % calculate distance between query point and center
-            dist = root.kernel(query, center);
+            % root.kernel(query, center);
+            dist = root.kernel_dist(query, center);
             larr = dist < radius;
             
             % get the right and left queries
@@ -267,9 +290,9 @@ classdef bsttree_vp < handle
         %       nn - nearest neighbors for current iteration
         %       dev - total number of distance evaluations in the search
         %------------------------------------------------------------------
-            
-    
-    
+
+                  global do_plot
+
             num_queries = size(queries, 2);
 
             backtracks_in = ones(num_queries,1) * -1;
@@ -277,8 +300,7 @@ classdef bsttree_vp < handle
             backtrack_queues = cell(num_queries, 1); % cell array of java priority queues -- used for partial backtrackin search
 
             % Some visualization that only works for d = 2
-            do_plot = false;
-
+            
             if (do_plot)
                 plot_colors = {'r', 'b', 'g', 'k'};
                 figure()
@@ -364,7 +386,7 @@ classdef bsttree_vp < handle
             center = root.cent;
             
             % calculate distance between query point and center
-            dist = root.kernel(queries, center);
+            dist = root.kernel_dist(queries, center);
             larr = dist < radius;
 
             % update the backtrack checking for the next iteration

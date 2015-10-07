@@ -25,6 +25,6 @@ d = (repmat(x2,N,1)/h + c).^p + (repmat(X2',1,n)/h + c).^p;
 
 % evaluate kernel
 % need the minus sign because we always search for the max now
-d = -sqrt(d - 2 * (dotProd/h + c).^p);
+d = sqrt(d - 2 * (dotProd/h + c).^p);
 
 end

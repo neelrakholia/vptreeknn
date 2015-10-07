@@ -1,11 +1,12 @@
-function [ rank_acc, dist_acc, tree_frac, search_frac, points ] = randomvp_search( data, queries, kernel, k, exact_nn, max_iter, tolerance, max_dists, ...
-    max_points_per_node, maxLevel)
+function [ rank_acc, dist_acc, search_frac, points ] = randomvp_search( data, queries, kernel, kernel_dist, k, exact_nn, max_iter, tolerance, max_dists, ...
+    max_points_per_node, maxLevel, num_backtracks)
 %randomvp_search Wrapper function for KNN search for 
 %
 % INPUTS:
 % - data -- the reference set
 % - queries -- the query set
 % - kernel -- handle for the similarity function
+% - kernel_dist -- handle for distance version (K(x,x) + K(y,y) - 2 K(x,y))
 % - k -- the number of neighbors to find
 % - exact_nn -- the exact neighbors for accuracy computations
 % - max_iter -- number of iterations to use 
@@ -13,15 +14,16 @@ function [ rank_acc, dist_acc, tree_frac, search_frac, points ] = randomvp_searc
 % - max_dists -- maximum fraction of distance evaluations to perform
 % - max_points_per_node -- leaf size
 % - max level -- maximum tree depth
+% - num_backtracks -- number of backtracks to do in search
 %
 % OUTPUTS:
 % - rank_acc -- the fraction of true NN we recovered
 % - dist_acc -- the ratio of the similarities found to the true Nq * k 
 %   most similar points
-% - tree_frac -- fraction of total distances in tree construction
 % - search_frac -- fraction of total distances in search
 % - points -- Nq x k array of NN indices
 
+global do_plot
 
 
 N = size(data,2);
@@ -33,8 +35,6 @@ points = zeros(Nq, k);
 iter = 0;
 rank_acc = 0;
 
-total_dists = 0;
-tree_dists = 0;
 total_search_evals = 0;
 total_search_frac = 0;
 
@@ -45,18 +45,28 @@ end
 
 
 while (iter <= max_iter && rank_acc < tolerance && total_search_frac < max_dists)
-    
+
+
+if (do_plot)
+    figure()
+    scatter(queries(1,1), queries(2,1), 200, 'm', 'x');
+    hold on;                
+    scatter(data(1,exact_nn(1)), data(2, exact_nn(2)), 200, 'm', 'd');
+end
+
     % build the new tree
-    tree = bsttree_vp(data, 1:N, max_points_per_node, maxLevel, kernel, 0, tree_dists);
+    tree = bsttree_vp(data, 1:N, max_points_per_node, maxLevel, kernel, kernel_dist, 0, 0);
     % we know that VP tree construction requires N distance evaluations
-    this_tree_dists = N; 
-    tree_dists = tree_dists + this_tree_dists;
 
     % update nearest neighbors with tree search
-    [new_nn, search_dists] = travtree2n(tree, queries, 1:Nq, data, k, points, test_nn, 0);
+    if (num_backtracks > 0)
+        [new_nn, search_dists] = PartialBacktracking(tree, queries, 1:Nq, data, k, points, test_nn, 0, num_backtracks);
+    else
+        [new_nn, search_dists] = travtree2n(tree, queries, 1:Nq, data, k, points, test_nn, 0);
+    end    
+
     test_nn = new_nn;
     points = test_nn;
-    total_dists = total_dists + search_dists + this_tree_dists;
 
     % now, estimate accuracy
     
@@ -70,9 +80,6 @@ while (iter <= max_iter && rank_acc < tolerance && total_search_frac < max_dists
         these_dists(i,:) = kernel(queries(:,i), data(:, points(i,:)));
     end
 
-
-    dist_frac = total_dists / (N * Nq);
-    tree_frac = this_tree_dists / (N * Nq);
     search_frac = search_dists / (N * Nq);
     total_search_evals = total_search_evals + search_dists;
     total_search_frac = total_search_evals / (N * Nq);
@@ -85,8 +92,8 @@ while (iter <= max_iter && rank_acc < tolerance && total_search_frac < max_dists
     % be meaningful
     dist_acc = min(dist_acc_frac, 1/dist_acc_frac);
 
-    fprintf('Iteration %d. Rank acc: %g, Dist acc: %g, Tree evals: %g, Search evals: %g, Total evals: %g\n\n', ...
-        iter, rank_acc, dist_acc, tree_frac, search_frac, dist_frac);
+    fprintf('Iteration %d. Rank acc: %g, Dist acc: %g, Evals in this iter: %g, Total evals: %g\n\n', ...
+        iter, rank_acc, dist_acc, search_frac, total_search_frac);
 
     iter = iter + 1;
     

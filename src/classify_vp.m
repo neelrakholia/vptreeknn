@@ -46,6 +46,12 @@ datar = data(:,ind(mid+1:end));
 indr = indi(ind(mid+1:end));
 cent = bestp;
 
+% figure();
+% scatter(datal(1,:), datal(2,:), 20, 'bx')
+% hold on;
+% scatter(datar(1,:), datar(2,:), 20, 'ro')
+% scatter(bestp(1), bestp(2), 40, 'kd')
+
 % compute radius
 % rad = distk(bestp, datal(:, end), kernel);
 rad = kernel(bestp, datal(:,end));
