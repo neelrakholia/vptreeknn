@@ -4,6 +4,8 @@ addpath './kernels/';
 
 %% load data
 
+rng(1)
+
 filename = '~/covtype.libsvm.trn.X.bin';
 n = 499999;
 dim = 54;
@@ -22,13 +24,15 @@ Nq = 1000;
 data = datasample(train, N, 2, 'Replace', false);
 queries = datasample(test, Nq, 2, 'Replace', false);
 
+rng('shuffle')
+
 %% kernel function
 
 h = 0.22;
 % kernel = @(x, y) rbf(x, y, h);
-% kernel = @(x, y) poly(x, y, 1, 0, 2);
+kernel = @(x, y) poly(x, y, 1, 0, 10);
 % kernel = @(x,y) rbf_dist(x, y, h);
-kernel = @(x, y) poly_dist(x, y, 1, 0, 10);
+% kernel = @(x, y) poly_dist(x, y, 1, 0, 10);
 
 % search parameters
 
