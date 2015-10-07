@@ -40,7 +40,7 @@ epsilon = 1;
 M = floor(num_references^(1/(1+epsilon)));
 
 h = 0.22;
-kernelfun = @(q,r) rbf(q, r, h);
+kernelfun = @(q,r) rbf_dist(q, r, h);
 
 [acc, dists] = klsh(test, train, k, b, B, M, p, kernelfun);
 

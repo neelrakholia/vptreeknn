@@ -28,7 +28,7 @@ neighbor_inds = zeros(num_queries, k);
 %     actual_nn((i - 1)*(num_queries/piece) + 1:i*num_queries/piece,:) = ...
 %         kknn(queries,1:num_references,references(:,(i - 1)*(num_queries/piece) + 1:i*num_queries/piece),0.22,k,num_references);
 % end
-actual_nn = kknn(references, 1:num_references, queries, 0.22, k, num_references);
+actual_nn = kknn(references, 1:num_references, queries, kernelfun, k, num_references);
 
 
 % count distance computations
