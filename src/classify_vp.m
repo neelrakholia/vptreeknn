@@ -1,5 +1,5 @@
 function [datal, datar, indl, indr, rad, cent, diseval] = classify_vp(data, ...
-    indi, nsize, sigma, diseval)
+    indi, nsize, kernel, diseval)
 %--------------------------------------------------------------------------
 % CLASSIFY_VP Computes the left data, the right data, and the radius of
 % left node
@@ -7,7 +7,7 @@ function [datal, datar, indl, indr, rad, cent, diseval] = classify_vp(data, ...
 %       data - database points to be organized into a vp-tree
 %       indi - global ids of database points
 %       nsize - number of points
-%       sigma - kernel bandwidth parameter
+%       kernel - handle for kernel function
 %       diseval - variable to keep track of distance evaluations
 %
 %   Output 
@@ -32,7 +32,8 @@ index = perm(1:rand);
 % linear search through all the points
 cent = data(:, index(rand));
 bestp = cent;
-dist = distk(data, bestp, sigma);
+% dist = distk(data, bestp, kernel);
+dist = kernel(data, bestp);
 
 % compute midpoint
 mid = ceil(nsize/2);
@@ -46,6 +47,7 @@ indr = indi(ind(mid+1:end));
 cent = bestp;
 
 % compute radius
-rad = distk(bestp, datal(:, end), sigma);
+% rad = distk(bestp, datal(:, end), kernel);
+rad = kernel(bestp, datal(:,end));
     
 end

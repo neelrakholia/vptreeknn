@@ -1,24 +1,20 @@
-function d = rbf(X, x, sigma)
+function d = poly(X, x, h, c, p)
 %--------------------------------------------------------------------------
 % RBF Evaluates pairwise RBF kernel distances between points in 2 arrays 
 %   Input 
 %       X - Array of points
 %       x - Array of points
-%       sigma - Kernel bandwidth parameter
+%       h -- scale
+%       c -- low-order offset
+%       p -- power
+%
+%       Computes (X'x/h + c)^p
 %
 %   Output 
 %       d - evaluated kernel value
 %--------------------------------------------------------------------------
 % evaluate euclidean part
-[~,N] = size(X);
-[~,n] = size(x);
-X2 = sum(X.^2,1);
-x2 = sum(x.^2,1);
-dotProd = X'*x;
-d = repmat(x2,N,1)+repmat(X2',1,n)-2*dotProd;
 
-% evaluate kernel
-d = exp(-d/(2*sigma^2));
-d = sqrt(-2*d + 2);
-d = d./(d + 1);
+d = (X'*x/h + c).^p;
+
 end

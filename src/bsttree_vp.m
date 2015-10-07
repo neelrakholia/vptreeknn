@@ -1,6 +1,9 @@
 classdef bsttree_vp < handle
 %--------------------------------------------------------------------------
 % BSTTREE_VP Constructs a random vantage point tree
+%
+% IMPORTANT: we're going to consistently search for the MAXIMUM similarity.
+% So, for kernel distances, we'll need to flip the sign.
 %--------------------------------------------------------------------------    
     properties
         data % array of points for our purpose
@@ -10,6 +13,7 @@ classdef bsttree_vp < handle
         nsize = 0 % number of elements in the node
         ndepth = 0 % depth of the node
         dise = 0 % number of distance evaluations
+        kernel % handle for kernel function evaluations
     end
     
     properties  (SetAccess = private)
@@ -26,7 +30,7 @@ classdef bsttree_vp < handle
         % kernelf: rbf kernel bandwidth
         % depth:   intial depth of the tree
         % diseval: number of distance evaluations
-        function root = bsttree_vp(data, indi, msize, mdepth, sigma, ...
+        function root = bsttree_vp(data, indi, msize, mdepth, kernel, ...
             depth, diseval)
         %------------------------------------------------------------------
         % BSTTREE_VP Initializes a vp-tree based on the given data
@@ -35,7 +39,7 @@ classdef bsttree_vp < handle
         %       indi - global ids of database points
         %       msize - maximum points per leaf
         %       mdepth - maximum allowed tree depth
-        %       sigma - kernel bandwidth parameter
+        %       kernel - handle for kernel function
         %       depth - initial depth of the tree
         %       diseval - variable to keep track of distance evaluations
         %
@@ -49,6 +53,7 @@ classdef bsttree_vp < handle
             root.nsize = sizep;
             root.ndepth = depth;
             root.ind = indi;
+            root.kernel = kernel;
             
             % check that nsize and ndepth are in acceptable range
             if(root.nsize <= msize || root.ndepth >= mdepth)
@@ -59,7 +64,7 @@ classdef bsttree_vp < handle
                 % get classification and radius
                 [datal, datar, indl, indr, radi, cen, diseval] = ...
                     classify_vp(data, ...
-                    indi, root.nsize, sigma, diseval);
+                    indi, root.nsize, kernel, diseval);
                 
                 % update disteval
                 root.dise = diseval;
@@ -76,9 +81,9 @@ classdef bsttree_vp < handle
                 
                 % recursively call bstrree on left and right node
                 root.left = bsttree_vp(lchild, indl, msize, mdepth, ...
-                    sigma, depth + 1, diseval);
+                    kernel, depth + 1, diseval);
                 root.right = bsttree_vp(rchild, indr, msize, mdepth, ...
-                    sigma, depth + 1, diseval);
+                    kernel, depth + 1, diseval);
             end % end if
         end % end function
         
@@ -86,7 +91,7 @@ classdef bsttree_vp < handle
     
     methods
         
-        function [points,deval] = psearch(root, data, query, sigma, k)
+        function [points,deval] = psearch(root, data, query, k)
         %------------------------------------------------------------------
         % PSEARCH Priority queue based search for NN. Described in FLANN.
         %   Input 
@@ -102,17 +107,17 @@ classdef bsttree_vp < handle
         %------------------------------------------------------------------
             
             % initialize dk as infinity
-            dk = inf;
+            dk = -inf;
             deval = 0;
             
             % call another function to traverse the tree
-            [r,~,deval] = travtree(root, data, query, sigma, k, dk, [], deval);
+            [r,~,deval] = travtree(root, data, query, k, dk, [], deval);
             
             % select first max number of points
             points = r;
         end
         
-        function [q, dk, deval] = travtree(root, data, query, sigma, ...
+        function [q, dk, deval] = travtree(root, data, query, ...
                 k, dk, q_in, deval)
         %------------------------------------------------------------------
         % TRAVTREE Priority queue based search for NN. Described in FLANN.
@@ -120,7 +125,6 @@ classdef bsttree_vp < handle
         %       root - pointer to tree root
         %       data - database points to be organized into a vp-tree
         %       query - query points whose NN are to be determined
-        %       sigma - kernel bandwidth parameter
         %       k - number of nearest neighbors to be found
         %       dk - distance to furthest neighbor
         %       q_in - array for storing found neighbors
@@ -136,17 +140,17 @@ classdef bsttree_vp < handle
             if(isempty(root.left))
                 % search for optimal neighbors 
                 indi = root.ind;
-                q = kknn(data, [indi, q_in], query, sigma, k, ...
+                q = kknn(data, [indi, q_in], query, root.kernel, k, ...
                     numel(indi)+numel(q_in));
                 
                 % update distance evaluations
                 deval = deval + numel(indi)+numel(q_in);
                 
                 % get current NN
-                dk_curr = distk(query, data(:,q(k)), sigma);
-                
+                dk_curr = root.kernel(query, data(:, q(k)));
+
                 % uodate them if required
-                if(dk_curr < dk)
+                if(dk_curr > dk)
                     dk = dk_curr;
                 end
                 
@@ -158,39 +162,38 @@ classdef bsttree_vp < handle
             center = root.cent;
             
             % calculate distance between query point and center
-            dist = distk(query, center, sigma);
+            dist = root.kernel(query, center);
 
             if(dist < radius)
                 % store data according to distance from query point
-                [q, dk, deval] = travtree(root.left, data, query, sigma,...
+                [q, dk, deval] = travtree(root.left, data, query,...
                     k, dk, q_in, deval);
                 
                 % if right cannot be pruned
                 if(dist + dk > radius)
                     [q, dk, deval] = travtree(root.right, data, query, ...
-                        sigma, k, dk, q, deval);
+                        k, dk, q, deval);
                 end
             else 
                 % store data according to distance from query point
-                [q, dk, deval] = travtree(root.right, data, query, sigma,...
+                [q, dk, deval] = travtree(root.right, data, query,...
                     k, dk, q_in, deval);
                 
                 % if left cannot be pruned
                 if(dist < radius + dk)
-                    [q, dk, deval] = travtree(root.left, data, query, ...
+                    [q, dk, deval] = travtree(root.left, data, ...
                         sigma, k, dk, q, deval);
                 end
             end
         end % end function
         
-        function [nn,dev] = travtree2n(root, query, sigma, global_id, data,...
+        function [nn,dev] = travtree2n(root, query, global_id, data,...
                 k, nn, prev, dev)
         %------------------------------------------------------------------
         % TRAVTREE2N Random greedy search for NN using vp-trees
         %   Input 
         %       root - pointer to tree root
         %       query - query points whose NN are to be determined
-        %       sigma - kernel bandwidth parameter
         %       global_id - global ids of data points
         %       data - database points to be organized into a vp-tree
         %       k - number of nearest neighbors to be found
@@ -209,7 +212,7 @@ classdef bsttree_vp < handle
                 % search for nn
                 prev_id = reshape(prev(global_id,:),1,k*numel(global_id));
                 search_id = unique([root.ind, prev_id]);
-                q = kknn(data, search_id, query, sigma, k, numel(search_id));
+                q = kknn(data, search_id, query, root.kernel, k, numel(search_id));
 
                 % store nn
                 nn(global_id,:) = q;
@@ -224,7 +227,7 @@ classdef bsttree_vp < handle
             center = root.cent;
             
             % calculate distance between query point and center
-            dist = distk(query, center, sigma);
+            dist = root.kernel(query, center);
             larr = dist < radius;
             
             % get the right and left queries
@@ -234,26 +237,25 @@ classdef bsttree_vp < handle
             % recursive call to whichever center is closer
             if(numel(indl) > 0)
                 % store data according to distance from query point
-                [nn,dev] = travtree2n(root.left, query(:,indl), sigma, ...
+                [nn,dev] = travtree2n(root.left, query(:,indl), ...
                     global_id(indl), data, k, nn, prev, dev);
             end
             if(numel(indr) > 0)
                 % store data according to distance from query point
-                [nn,dev] = travtree2n(root.right, query(:, indr), sigma, ...
+                [nn,dev] = travtree2n(root.right, query(:, indr), ...
                     global_id(indr), data, k, nn, prev, dev);
             end % end if
         end % end function
         
         
         
-        function [nn, dev] = PartialBacktracking(root, queries, h, global_ids, data, k, nn, prev, dev, num_backtracks)
+        function [nn, dev] = PartialBacktracking(root, queries, global_ids, data, k, nn, prev, dev, num_backtracks)
             %------------------------------------------------------------------
         % PartialBacktraking Random greedy search for NN using vp-trees
         %  This method does some partial backtracking.   
         % Input 
         %       root - pointer to tree root
         %       query - query points whose NN are to be determined
-        %       sigma - kernel bandwidth parameter
         %       global_id - global ids of data points
         %       data - database points to be organized into a vp-tree
         %       k - number of nearest neighbors to be found
@@ -274,10 +276,15 @@ classdef bsttree_vp < handle
 
             backtrack_queues = cell(num_queries, 1); % cell array of java priority queues -- used for partial backtrackin search
 
-%             plot_colors = {'r', 'b', 'g', 'k'};
-%             figure()
-%             scatter(queries(1,1), queries(2,1), 200, 'm', 'x');
-%             hold on;    
+            % Some visualization that only works for d = 2
+            do_plot = false;
+
+            if (do_plot)
+                plot_colors = {'r', 'b', 'g', 'k'};
+                figure()
+                scatter(queries(1,1), queries(2,1), 200, 'm', 'x');
+                hold on;    
+            end
             
             % just inserting this here so we don't have to track another 
             % parameter
@@ -296,17 +303,14 @@ classdef bsttree_vp < handle
             
             fprintf('Initial call (no backtracks)\n');
             % do the initial call
-            [nn, dev] = PartialBacktrackingHelper(root, queries, h, global_ids, data, k, nn, prev, dev, ...
+            [nn, dev] = PartialBacktrackingHelper(root, queries, global_ids, data, k, nn, prev, dev, ...
                 backtracks_in, true);        
 
             backtracks = -1 * ones(num_queries, num_backtracks);
             % now, sort them
             for q_ind = 1:num_queries
-%                 fprintf('backtrack queue %d: \n', q_ind);
-%                 backtrack_queues{q_ind}
                [~, inds] = sort(backtrack_queues{q_ind}(:,2));
                backtracks(q_ind, :) = backtrack_queues{q_ind}(inds(1:num_backtracks), 1);
-%                 fprintf('\n');
             end
             
             
@@ -316,10 +320,8 @@ classdef bsttree_vp < handle
                 prev = nn;
                 
                  fprintf('Backtracks no: %d\n', back_ind);
-%                 backtracks(:,back_ind)
-%                 fprintf('\n');
                 
-                [nn, dev] = PartialBacktrackingHelper(root, queries, h, global_ids, data, k, nn, prev, dev, ...
+                [nn, dev] = PartialBacktrackingHelper(root, queries, global_ids, data, k, nn, prev, dev, ...
                     backtracks(:,back_ind), false);        
                
                 
@@ -329,7 +331,7 @@ classdef bsttree_vp < handle
         % helper for the above, handles the recursion
         % backtracks are stored as a level (at which we go the other way)
         % for each query
-        function [nn, dev] = PartialBacktrackingHelper(root, queries, sigma, ...
+        function [nn, dev] = PartialBacktrackingHelper(root, queries, ...
                 global_id, data, k, nn, prev, dev, backtracks_in, store_backtracks)
             
             % base case
@@ -338,20 +340,14 @@ classdef bsttree_vp < handle
                 % search for nn
                 prev_id = reshape(prev(global_id,:),1,k*numel(global_id));
                 search_id = unique([root.ind, prev_id]);
-                q = kknn(data, search_id, queries, sigma, k, numel(search_id));
+                q = kknn(data, search_id, queries, root.kernel, k, numel(search_id));
 
                 
+                if (do_plot && ~isempty(find(global_id == 1,1)))
+                    scatter(root.data(1,:), root.data(2,:), [], plot_colors{back_ind+1});
+                end                
+
                 
-%                 if (~isempty(find(global_id == 1,1)))
-%                     scatter(root.data(1,:), root.data(2,:), [], plot_colors{back_ind+1});
-%                     
-%                     fprintf('Query 1 searching: \n');
-%                     dists = distk(queries(:,find(global_id == 1, 1)), data(:,root.ind), sigma);
-%                     root.ind
-%                     dists
-%                     q
-%                     
-%                 end                
                 % store nn
                 nn(global_id,:) = q;
                 
@@ -363,27 +359,12 @@ classdef bsttree_vp < handle
                 
             end
             
-            if(isempty(root.left))
-                % search for nn
-                prev_id = reshape(prev(global_id,:),1,k*numel(global_id));
-                search_id = unique([root.ind, prev_id]);
-                q = kknn(data, search_id, query, sigma, k, numel(search_id));
-
-                % store nn
-                nn(global_id,:) = q;
-                
-                % update computations
-                dev = dev + numel(search_id)*numel(global_id);
-                return;
-            end
-
-            
             % get the radius and center
             radius = root.rad;
             center = root.cent;
             
             % calculate distance between query point and center
-            dist = distk(queries, center, sigma);
+            dist = root.kernel(queries, center);
             larr = dist < radius;
 
             % update the backtrack checking for the next iteration
@@ -415,12 +396,12 @@ classdef bsttree_vp < handle
             % recursive call to whichever center is closer
             if(numel(indl) > 0)
                 % store data according to distance from query point
-                [nn,dev] = PartialBacktrackingHelper(root.left, queries(:,indl), sigma, ...
+                [nn,dev] = PartialBacktrackingHelper(root.left, queries(:,indl), ...
                     global_id(indl), data, k, nn, prev, dev, backtracks_in(indl), store_backtracks);
             end
             if(numel(indr) > 0)
                 % store data according to distance from query point
-                [nn,dev] = PartialBacktrackingHelper(root.right, queries(:, indr), sigma, ...
+                [nn,dev] = PartialBacktrackingHelper(root.right, queries(:, indr), ...
                     global_id(indr), data, k, nn, prev, dev, backtracks_in(indr), store_backtracks);
             end % end if
             
