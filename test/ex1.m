@@ -19,8 +19,8 @@ test = binread_array(filename, m*dim);
 test = reshape(test, dim, m);
 
 % sample data
-N = 499999;
-Nq = 100;
+N = 200000;
+Nq = 1000;
 data = datasample(train, N, 2, 'Replace', false);
 queries = datasample(test, Nq, 2, 'Replace', false);
 
@@ -32,9 +32,9 @@ h = 0.22;
 max_iter = 100;
 tolerance = 0.99;
 max_dists = 1;
-max_points_per_node = 100;
+max_points_per_node = 1000;
 k = 10;
-maxLevel = 30;
+maxLevel = 12;
 num_backtracks = 2;
 
 %% compute exact nearest neighbors 
@@ -57,13 +57,15 @@ fprintf('Partial backtracking: \n\n');
 
 while (iter <= max_iter && acc < tolerance && dist_frac < max_dists)
 
+    tree_dists = 0;
     % build the new tree
-    tree = bsttree_vp(data, 1:N, max_points_per_node, maxLevel, h, 0, 0);
+    tree = bsttree_vp(data, 1:N, max_points_per_node, maxLevel, h, 0, tree_dists);
+    tree_dists = tree.dise;
     
     [new_nn,deval] = PartialBacktracking(tree, queries, h, 1:Nq, data, k, points, test_nn, 0, num_backtracks);
     test_nn= new_nn;
     points = test_nn;
-    total_dists = total_dists + deval;
+    total_dists = total_dists + deval + tree_dists;
 
     % now, estimate accuracy
     
@@ -76,7 +78,7 @@ while (iter <= max_iter && acc < tolerance && dist_frac < max_dists)
     % print accuracy
     acc = suml/(Nq*k);
     fprintf('Accuracy: %f\n', suml/(Nq*k));
-    fprintf('Num dist evals: %g\n\n', total_dists/(N * Nq));   
+    fprintf('Num dist evals: tree: %g, total: %g\n\n', tree_dists/(N * Nq), total_dists/(N * Nq));   
     
     iter = iter + 1;
     
@@ -100,14 +102,15 @@ dist_frac = 0;
 
 while (iter <= max_iter && acc < tolerance && dist_frac < max_dists)
     
-
+    tree_dists = 0;
     % build the new tree
-    tree = bsttree_vp(data, 1:N, max_points_per_node, maxLevel, h, 0, 0);
+    tree = bsttree_vp(data, 1:N, max_points_per_node, maxLevel, h, 0, tree_dists);
+    tree_dists = tree.dise;
     
     [new_nn,deval] = travtree2n(tree, queries, h, 1:Nq, data, k, points, test_nn, 0);
     test_nn= new_nn;
     points = test_nn;
-    total_dists = total_dists + deval;
+    total_dists = total_dists + deval + tree_dists;
 
     % now, estimate accuracy
     
