@@ -1,4 +1,3 @@
-% constructs a tree out documents based on proximity
 
 rng(100);
 
@@ -60,21 +59,16 @@ num_test = 1000;%floor(numel(test)/2);
 lambda = 0.5;
 order = 2;
 
-% run random NN algo and see how it compares with quad search
-randomvp(train(1:num_train), test(1:num_test), num_train, num_test, 5, 20, lambda, ...
-     50, 8, 1, train_lab(1:num_train), test_lab(1:num_test))
+% sample data to form kernel matrix
+p = 40;
+b = 10;
+B = 100;
+k = 5;
 
-% tic
-% K = wsk_mex(train(1:num_train), test(1:num_test), lambda, order);
-% toc
-% 
-% tic 
-% K_exact = wsk(train(1:num_train), test(1:num_test), lambda, order);
-% toc
-% 
-% fprintf('Error: %g\n', norm(K - K_exact));
+epsilon = 1;
+M = floor(num_test^(1/(1+epsilon)));
 
+h = 0.50;
+kernelfun = @(q,r) distk(q, r, h);
 
-
-
-
+[acc, dists] = klsh(train(1:num_train), test(1:num_test), k, b, B, M, p, kernelfun);

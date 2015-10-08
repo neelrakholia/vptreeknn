@@ -10,7 +10,7 @@ function d = distk(X, x, sigma)
 %       d - evaluated kernel value
 %--------------------------------------------------------------------------
 % select kernel type
-kerneltype = 'rbf';
+kerneltype = 'wsk';
 
 % Add switch here to change kernel type used
 if(strcmp(kerneltype,'rbf'))
