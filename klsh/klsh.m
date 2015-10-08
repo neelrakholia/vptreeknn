@@ -69,11 +69,16 @@ for i = 1:M
 %         inds = binarySearch(sorted_ref, Compact_query(j,:));
 %         inds = unique(sort_inds(inds));
 <<<<<<< HEAD
+<<<<<<< HEAD
         dists(j,:) = kernelfun(queries(:,j), references(:, inds));  
 =======
         
         dists(j,1:numel(inds)) = kernelfun(queries(:,j), references(:, inds))';  
 >>>>>>> origin/master
+=======
+        
+        dists(j,1:numel(inds)) = kernelfun(queries(:,j), references(:, inds))';  
+>>>>>>> 5a9755ce5a556660ab4246e5153c1cb291957424
         total_comps = total_comps + numel(inds);
         
         [neighbor_dists(j,:), neighbor_inds(j,:)] = knn_update([neighbor_dists(j,:), dists(j,:)], [neighbor_inds(j,:), inds], k);

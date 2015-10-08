@@ -4,7 +4,10 @@ addpath '/src'
 =======
 addpath '~/vptreeknn/src'
 clear
+<<<<<<< HEAD
 >>>>>>> origin/master
+=======
+>>>>>>> 5a9755ce5a556660ab4246e5153c1cb291957424
 
 % for debugging
 rng(1);
