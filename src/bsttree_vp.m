@@ -63,6 +63,11 @@ global do_plot
 
             % check that nsize and ndepth are in acceptable range
             if(root.nsize <= msize || root.ndepth >= mdepth)
+
+                % we'll define the VP of a leaf node to be a random point
+                % in the node -- used for determining the search direction 
+                root.cent = data(:, randi(root.nsize, 1));
+                
                 return;
                 
             % get left and right classification
@@ -198,18 +203,20 @@ global do_plot
             end
         end % end function
         
-        function [nn,dev] = travtree2n(root, query, global_id, data,...
-                k, nn, prev, dev)
+        function [nn_inds, nn_dists, dev] = travtree2n(root, query, data,...
+                k, prev_ids, prev_dists, dev)
         %------------------------------------------------------------------
         % TRAVTREE2N Random greedy search for NN using vp-trees
         %   Input 
         %       root - pointer to tree root
         %       query - query points whose NN are to be determined
         %       global_id - global ids of data points
+        %       query_ids -- ids of query points 
         %       data - database points to be organized into a vp-tree
         %       k - number of nearest neighbors to be found
         %       nn - updated matrix of nn
-        %       prev - previous matrix of nn
+        %       prev_ids - previous matrix of nn indices
+        %       prev_dists - previous matrix of nn distances
         %       dev - keeping track of distance evaluations
         %
         %   Output 
@@ -232,42 +239,43 @@ global do_plot
             % if the root is a leaf
             if(isempty(root.left))
                 % search for nn
-                prev_id = reshape(prev(global_id,:),1,k*numel(global_id));
-                search_id = unique([root.ind, prev_id]);
-                q = kknn(data, search_id, query, root.kernel, k, numel(search_id));
-
-                % store nn
-                nn(global_id,:) = q;
+                kvals = root.kernel(query, data(:,root.ind));
+                [nn_dists, nn_inds] = knn_update([prev_dists, kvals], [prev_ids, repmat(root.ind, size(prev_ids,1),1)], k);
                 
                 % update computations
-                dev = dev + numel(search_id)*numel(global_id);
+                dev = dev + size(query,2)*numel(root.ind);
+                
                 return;
             end
+
+            % we'll look at the VPs of the children and go to the closer
+            % one
+            left_vp = root.left.cent;
+            right_vp = root.right.cent;
             
-            % get the radius and center
-            radius = root.rad;
-            center = root.cent;
-            
-            % calculate distance between query point and center
-            % root.kernel(query, center);
-            dist = root.kernel_dist(query, center);
-            larr = dist < radius;
-            
+            kvals = root.kernel(query, [left_vp, right_vp]);
+            larr = kvals(:,1) > kvals(:,2);
+
             % get the right and left queries
             indl = find(larr);
             indr = find(~larr);
             
+            nn_inds = zeros(size(query,2),k);
+            nn_dists = zeros(size(query,2), k);
+            
             % recursive call to whichever center is closer
             if(numel(indl) > 0)
                 % store data according to distance from query point
-                [nn,dev] = travtree2n(root.left, query(:,indl), ...
-                    global_id(indl), data, k, nn, prev, dev);
+                [nn_inds(indl,:), nn_dists(indl,:), dev] = travtree2n(root.left, query(:,indl), ...
+                    data, k, prev_ids(indl,:), prev_dists(indl,:), dev);
             end
             if(numel(indr) > 0)
                 % store data according to distance from query point
-                [nn,dev] = travtree2n(root.right, query(:, indr), ...
-                    global_id(indr), data, k, nn, prev, dev);
+                [nn_inds(indr,:), nn_dists(indr,:), dev] = travtree2n(root.right, query(:,indr), ...
+                    data, k, prev_ids(indr,:), prev_dists(indr,:), dev);
             end % end if
+            
+            
         end % end function
         
         

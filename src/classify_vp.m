@@ -54,6 +54,8 @@ cent = bestp;
 
 % compute radius
 % rad = distk(bestp, datal(:, end), kernel);
-rad = kernel(bestp, datal(:,end));
-    
+% rad = kernel(bestp, datal(:,end));
+% using the median instead -- helps with big splits?
+rad = median(dist);
+
 end

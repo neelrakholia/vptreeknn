@@ -1,4 +1,4 @@
-function [ rank_acc, dist_acc, search_frac, points ] = randomvp_search( data, queries, kernel, kernel_dist, k, exact_nn, max_iter, tolerance, max_dists, ...
+function [ rank_acc, dist_acc, search_frac, vp_nn_inds ] = randomvp_search( data, queries, kernel, kernel_dist, k, exact_nn, max_iter, tolerance, max_dists, ...
     max_points_per_node, maxLevel, num_backtracks)
 %randomvp_search Wrapper function for KNN search for 
 %
@@ -29,8 +29,8 @@ global do_plot
 N = size(data,2);
 Nq = size(queries, 2);
 
-test_nn = ones(Nq, k);
-points = zeros(Nq, k);
+vp_nn_inds = zeros(Nq,k);
+vp_nn_dists = -inf*ones(Nq,k);
 
 iter = 0;
 rank_acc = 0;
@@ -56,28 +56,28 @@ end
 
     % build the new tree
     tree = bsttree_vp(data, 1:N, max_points_per_node, maxLevel, kernel, kernel_dist, 0, 0);
-    % we know that VP tree construction requires N distance evaluations
+    % we know that VP tree construction requires N log(N/leaf_size) distance evaluations
 
     % update nearest neighbors with tree search
     if (num_backtracks > 0)
-        [new_nn, search_dists] = PartialBacktracking(tree, queries, 1:Nq, data, k, points, test_nn, 0, num_backtracks);
+        [new_nn, search_dists] = PartialBacktracking(tree, queries, 1:Nq, data, k, vp_nn_inds, test_nn, 0, num_backtracks);
     else
-        [new_nn, search_dists] = travtree2n(tree, queries, 1:Nq, data, k, points, test_nn, 0);
+        [new_nn_inds, new_nn_dists, search_dists] = travtree2n(tree, queries, data, k, vp_nn_inds, vp_nn_dists, 0);
     end    
 
-    test_nn = new_nn;
-    points = test_nn;
-
+    vp_nn_inds = new_nn_inds;
+    vp_nn_dists = new_nn_dists;
+    
+    vp_nn_inds(1,:)
+    exact_nn(1,:)
+    
     % now, estimate accuracy
     
     suml = 0;
-    these_dists = zeros(Nq, k);
-
     % calculate accuracy by comparing neighbors found
     % TODO: need to not recompute these moving forward
     for i = 1:Nq
-        suml = suml + length(intersect(points(i,:), exact_nn(i,:)));
-        these_dists(i,:) = kernel(queries(:,i), data(:, points(i,:)));
+        suml = suml + length(intersect(vp_nn_inds(i,:), exact_nn(i,:)));
     end
 
     search_frac = search_dists / (N * Nq);
@@ -87,7 +87,7 @@ end
     % print accuracy
     
     rank_acc = suml/(Nq*k);
-    dist_acc_frac = sum(these_dists(:)) / sum(true_dists(:));
+    dist_acc_frac = sum(vp_nn_dists(:)) / sum(true_dists(:));
     % if we're doing -1*distance, then we need to flip this over for it to  
     % be meaningful
     dist_acc = min(dist_acc_frac, 1/dist_acc_frac);
