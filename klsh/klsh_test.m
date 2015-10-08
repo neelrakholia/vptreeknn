@@ -1,13 +1,7 @@
 
-<<<<<<< HEAD
 addpath '/src'
-=======
 addpath '~/vptreeknn/src'
 clear
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
->>>>>>> 5a9755ce5a556660ab4246e5153c1cb291957424
 
 % for debugging
 rng(1);
@@ -32,17 +26,10 @@ train = datasample(train, num_references, 2, 'Replace', false);
 test = datasample(test, num_queries, 2, 'Replace', false);
 
 % sample data to form kernel matrix
-<<<<<<< HEAD
 p = 200;
 b = 60;
 B = 3000;
 k = 100;
-=======
-p = 300;
-b = 30;
-B = 15;
-k = 10;
->>>>>>> origin/master
 
 epsilon = 1;
 M = floor(num_references^(1/(1+epsilon)));
