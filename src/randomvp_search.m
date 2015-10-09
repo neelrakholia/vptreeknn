@@ -1,4 +1,4 @@
-function [ rank_acc, dist_acc, search_frac, vp_nn_inds ] = randomvp_search( data, queries, kernel, kernel_dist, k, exact_nn, max_iter, tolerance, max_dists, ...
+function [ rank_acc, dist_acc, total_search_frac, iter,  vp_nn_inds ] = randomvp_search( data, queries, kernel, kernel_dist, k, exact_nn, max_iter, tolerance, max_dists, ...
     max_points_per_node, maxLevel, num_backtracks)
 %randomvp_search Wrapper function for KNN search for 
 %
@@ -21,7 +21,8 @@ function [ rank_acc, dist_acc, search_frac, vp_nn_inds ] = randomvp_search( data
 % - dist_acc -- the ratio of the similarities found to the true Nq * k 
 %   most similar points
 % - search_frac -- fraction of total distances in search
-% - points -- Nq x k array of NN indices
+% - num_iterations -- number of search iterations
+% - vp_nn_inds -- Nq x k array of NN indices
 
 global do_plot
 
@@ -68,9 +69,6 @@ end
     vp_nn_inds = new_nn_inds;
     vp_nn_dists = new_nn_dists;
     
-    vp_nn_inds(1,:)
-    exact_nn(1,:)
-    
     % now, estimate accuracy
     
     suml = 0;
@@ -88,19 +86,13 @@ end
     
     rank_acc = suml/(Nq*k);
     dist_acc_frac = sum(vp_nn_dists(:)) / sum(true_dists(:));
-    % if we're doing -1*distance, then we need to flip this over for it to  
-    % be meaningful
-    dist_acc = min(dist_acc_frac, 1/dist_acc_frac);
-
+    
     fprintf('Iteration %d. Rank acc: %g, Dist acc: %g, Evals in this iter: %g, Total evals: %g\n\n', ...
-        iter, rank_acc, dist_acc, search_frac, total_search_frac);
+        iter, rank_acc, dist_acc_frac, search_frac, total_search_frac);
 
     iter = iter + 1;
     
 end % loop over random trees
-
-
-
 
 end
 
