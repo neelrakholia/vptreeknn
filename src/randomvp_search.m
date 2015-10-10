@@ -1,4 +1,4 @@
-function [ rank_acc, dist_acc, total_search_frac, iter,  vp_nn_inds ] = randomvp_search( data, queries, kernel, kernel_dist, k, exact_nn, max_iter, tolerance, max_dists, ...
+function [ rank_acc, dist_acc_frac, total_search_frac, iter,  vp_nn_inds ] = randomvp_search( data, queries, kernel, kernel_dist, k, exact_nn, max_iter, tolerance, max_dists, ...
     max_points_per_node, maxLevel, num_backtracks)
 %randomvp_search Wrapper function for KNN search for 
 %
@@ -44,8 +44,9 @@ for i = 1:Nq
     true_dists(i,:) = kernel(queries(:,i), data(:, exact_nn(i,:)));
 end
 
+dist_acc_frac = 0;
 
-while (iter <= max_iter && rank_acc < tolerance && total_search_frac < max_dists)
+while (iter <= max_iter && rank_acc < tolerance && dist_acc_frac < tolerance && total_search_frac < max_dists)
 
 
 if (do_plot)

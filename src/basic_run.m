@@ -13,25 +13,35 @@ rng(1)
 % testfilename = '~/covtype.libsvm.tst.X.bin';
 % m = 80012;
 
-testfilename = '~/susy.icml.tst.X.bin';
-m = 499999;
+filename = '~/uniform_64d_6id_500k.bin';
+n = 499999;
+dim = 64;
 
-filename = '~/susy.icml.trn.X.bin';
-n = 4499999;
-dim = 18;
-
-
-train = binread_array(filename, n*dim);
-train = reshape(train, dim, n);
-
-test = binread_array(testfilename, m*dim);
-test = reshape(test, dim, m);
+data_in = binread_array(filename, n*dim);
+data_in = reshape(data_in, dim, n);
 
 N = 200000;
 Nq = 1000;
 
-data = datasample(train, N, 2, 'Replace', false);
-queries = datasample(test, Nq, 2, 'Replace', false);
+data = data_in(:,1:N);
+queries = data_in(:,(end-Nq+1):end);
+
+% testfilename = '~/susy.icml.tst.X.bin';
+% m = 499999;
+% 
+% filename = '~/susy.icml.trn.X.bin';
+% n = 4499999;
+% dim = 18;
+
+
+% train = binread_array(filename, n*dim);
+% train = reshape(train, dim, n);
+% 
+% test = binread_array(testfilename, m*dim);
+% test = reshape(test, dim, m);
+
+% data = datasample(train, N, 2, 'Replace', false);
+% queries = datasample(test, Nq, 2, 'Replace', false);
 
 rng('shuffle')
 
@@ -45,15 +55,22 @@ rng('shuffle')
 
 %% kernel function
 
-h = 5;
-kernel = @(x, y) rbf(x, y, h);
-kernel_dist = @(x,y) rbf_dist(x, y, h);
+% h = 0.15;
+% h = 0.22;
+% h = 0.1;
+% kernel = @(x, y) rbf(x, y, h);
+% kernel_dist = @(x,y) rbf_dist(x, y, h);
 
-% kernel = @(x, y) poly(x, y, 1, 1, 10);
-% kernel_dist = @(x, y) poly_dist(x, y, 1, 1, 10);
+% kernel = @(x, y) poly(x, y, 1, 1, 2);
+% kernel_dist = @(x, y) poly_dist(x, y, 1, 1, 2);
 
 % kernel = @(x, y) cosine_kernel(x, y);
 % kernel_dist = @(x, y) cosine_kernel_dist(x,y);
+
+h = 1;
+c = 0;
+kernel = @(x,y) hyptan_kernel(x,y,h,c);
+kernel_dist = @(x,y) hyptan_kernel_dist(x,y,h,c);
 
 % search parameters
 
