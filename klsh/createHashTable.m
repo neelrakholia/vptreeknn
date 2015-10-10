@@ -1,4 +1,4 @@
-function [H W] = createHashTable(K,b,t)
+function [H, W] = createHashTable(K,b,t)
 %% function [H W] = createHashTable(K,b,t)
 %  Create a hash table for kernelized LSH.
 %
@@ -10,7 +10,7 @@ function [H W] = createHashTable(K,b,t)
 %           W (weight matrix for computing hash keys over queries, size p x b)
 %%
 
-[p,p] = size(K);
+[~,p] = size(K);
 %center the kernel matrix
 K = K - (1/p)*(K*ones(p,1))*ones(1,p) - (1/p)*ones(p,1)*(ones(1,p)*K) + (1/p^2)*sum(sum(K));
 if nargin < 3
@@ -23,6 +23,9 @@ ind_k = find(d_k > 1e-8);
 d_k(ind_k) = d_k(ind_k).^(-1/2);
 K_half = V_K*diag(d_k)*V_K';
 
+I_s = zeros(b, t);
+W = zeros(p, b);
+
 %create indices for the t random points for each hash bit
 %then form weight matrix
 for i = 1:b
@@ -34,3 +37,4 @@ for i = 1:b
 end
 H = (K*W)>0;
 W = real(W);
+

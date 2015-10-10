@@ -1,6 +1,4 @@
-function [ accuracy, dist_evals ] = klsh( queries, references, k, b, B, M, p, kernelfun)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+function [ rank_acc, dist_acc, dist_evals ] = klsh( queries, references, k, b, B, M, p, t, kernelfun, actual_dists, actual_nn)
 
 [~, num_queries] = size(queries);
 [~, num_references] = size(references);
@@ -8,32 +6,26 @@ function [ accuracy, dist_evals ] = klsh( queries, references, k, b, B, M, p, ke
 % form the estimated covariance matrix
 references = references(:, randperm(num_references));
 
+fprintf('\nCreating hash functions\n');
 Kp = kernelfun(references(:,1:p), references(:,1:p));
 
 % create the hash matrix
-[~, W] = createHashTable(Kp, p, b);
+[~, W] = createHashTable(Kp, t, b);
 
 % now, hash the remaining points
 H_ref = kernelfun(references, references(:,1:p)) * W > 0;
 H_query = kernelfun(queries, references(:,1:p)) * W > 0;
 
-neighbor_dists = ones(num_queries, k) * realmax;
+fprintf('\nFinished hash functions\n');
+
+neighbor_dists = ones(num_queries, k) * -inf;
 neighbor_inds = zeros(num_queries, k);
 
-% compute actual nn for accuracy purposes
-% piece = min(100, num_queries);
-% actual_nn = zeros(num_queries,k);
-% actual_nn(1:num_queries/piece, :) = kknn(queries,1:num_references, references(:,1:num_queries/piece),0.22,k,num_references);
-% for i = 2:piece
-%     actual_nn((i - 1)*(num_queries/piece) + 1:i*num_queries/piece,:) = ...
-%         kknn(queries,1:num_references,references(:,(i - 1)*(num_queries/piece) + 1:i*num_queries/piece),0.22,k,num_references);
-% end
-actual_nn = kknn(references, 1:num_references, queries, kernelfun, k, num_references);
 
+hash_evals = p*p + p * num_references;
 
 % count distance computations
-total_comps = 0;
-
+search_evals = p*num_queries;
 
 % now, loop over permutations
 for i = 1:M
@@ -47,38 +39,43 @@ for i = 1:M
     
 
     % now, get the distances between the queries and their candidates
-    dists = 10^10 * ones(num_queries, 2*B);
+    dists = -inf * ones(num_queries, 2*B);
     
     for j = 1:num_queries
 
-        
          lower_inds = find(Compact_query(j,:) < sorted_ref, B);
          upper_inds = find(Compact_query(j,:) >= sorted_ref, B, 'last');
-
+         
          inds = sort_inds(union(lower_inds, upper_inds))';
 %         inds = binarySearch(sorted_ref, Compact_query(j,:));
 %         inds = unique(sort_inds(inds));
+
+        inds = setdiff(inds, neighbor_inds(j,:));
         
         dists(j,1:numel(inds)) = kernelfun(queries(:,j), references(:, inds))';  
-        total_comps = total_comps + numel(inds);
         
-        [neighbor_dists(j,:), neighbor_inds(j,:)] = knn_update([neighbor_dists(j,:), dists(j,:)], [neighbor_inds(j,:), inds], k);
+        search_evals = search_evals + numel(inds);
+        
+        [neighbor_dists(j,:), neighbor_inds(j,:)] = knn_update([neighbor_dists(j,:), dists(j,1:numel(inds))], [neighbor_inds(j,:), inds], k);
         
     end
     
     % estimate the accuracy in each iteration
-    sum = 0;
+    total = 0;
     for j = 1:num_queries
-        sum = sum + length(intersect(actual_nn(j,:), neighbor_inds(j,:)));
+        total = total + length(intersect(actual_nn(j,:), neighbor_inds(j,:)));
     end
-    acc = sum/(num_queries*k);
+    
+    dist_acc = sum(abs(neighbor_dists(:))) / sum(abs(actual_dists(:)));
 
-    fprintf('Iteration %d: Accuracy %g with %g dist evals.\n', i, acc, (p*p + total_comps)/(num_queries*num_references));
+    rank_acc = total/(num_queries*k);
+
+    fprintf('Iteration %d: Rank accuracy %g, Dist accuracy: %g, with %d hash evals and %g total evals.\n', i, rank_acc, dist_acc, ...
+        hash_evals, (hash_evals + search_evals)/(num_references*num_queries));
     
 end
 
-accuracy = acc;
-dist_evals = (p*p + total_comps)/(num_queries*num_references);
+dist_evals = (p*p + num_references*p + num_queries*p + total_comps)/(num_queries*num_references);
 
 end
 

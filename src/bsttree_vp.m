@@ -244,11 +244,17 @@ global do_plot
             % if the root is a leaf
             if(isempty(root.left))
                 % search for nn
-                kvals = root.kernel(query, data(:,root.ind));
-                [nn_dists, nn_inds] = knn_update([prev_dists, kvals], [prev_ids, repmat(root.ind, size(prev_ids,1),1)], k);
                 
-                % update computations
-                dev = dev + size(query,2)*numel(root.ind);
+                for i = 1:size(query,2)
+
+                    inds = setdiff(root.ind, prev_ids(i,:)); 
+                    kvals = root.kernel(query(:,i), data(:,inds));
+                    [nn_dists(i,:), nn_inds(i,:)] = knn_update([prev_dists(i,:), kvals], [prev_ids(i,:), inds], k);
+
+                    % update computations
+                    dev = dev + numel(inds);
+
+                end
                 
                 return;
             end

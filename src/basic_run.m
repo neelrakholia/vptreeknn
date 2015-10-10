@@ -1,6 +1,6 @@
 
 clear; clc; close all;
-addpath './kernels/';
+addpath 'kernels/';
 
 %% load data
 

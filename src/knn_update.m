@@ -21,8 +21,8 @@ else
 % TODO: make less stupid
     inds_out = zeros(size(dists_in,1),k);
     for i=1:size(dists_in,1)
-        unique_inds = unique(inds_in(i,sort_inds(i,:)), 'stable');
-        inds_out(i,:) = unique_inds(1:k); 
+%         unique_inds = unique(inds_in(i,sort_inds(i,:)), 'stable');
+        inds_out(i,:) = inds_in(i,sort_inds(i,1:k));
     end
 
 end
