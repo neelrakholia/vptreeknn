@@ -62,9 +62,9 @@ end
 
     % update nearest neighbors with tree search
     if (num_backtracks > 0)
-        [new_nn, search_dists] = PartialBacktracking(tree, queries, 1:Nq, data, k, vp_nn_inds, test_nn, 0, num_backtracks);
+        [new_nn_inds, new_nn_dists, num_search_dists] = PartialBacktracking(tree, queries, data, k, vp_nn_inds, vp_nn_dists, num_backtracks);
     else
-        [new_nn_inds, new_nn_dists, search_dists] = travtree2n(tree, queries, data, k, vp_nn_inds, vp_nn_dists, 0);
+        [new_nn_inds, new_nn_dists, num_search_dists] = travtree2n(tree, queries, data, k, vp_nn_inds, vp_nn_dists, 0);
     end    
 
     vp_nn_inds = new_nn_inds;
@@ -79,14 +79,14 @@ end
         suml = suml + length(intersect(vp_nn_inds(i,:), exact_nn(i,:)));
     end
 
-    search_frac = search_dists / (N * Nq);
-    total_search_evals = total_search_evals + search_dists;
+    search_frac = num_search_dists / (N * Nq);
+    total_search_evals = total_search_evals + num_search_dists;
     total_search_frac = total_search_evals / (N * Nq);
 
     % print accuracy
     
     rank_acc = suml/(Nq*k);
-    dist_acc_frac = sum(vp_nn_dists(:)) / sum(true_dists(:));
+    dist_acc_frac = sum(abs(vp_nn_dists(:))) / sum(abs(true_dists(:)));
     
     fprintf('Iteration %d. Rank acc: %g, Dist acc: %g, Evals in this iter: %g, Total evals: %g\n\n', ...
         iter, rank_acc, dist_acc_frac, search_frac, total_search_frac);
