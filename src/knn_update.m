@@ -8,14 +8,18 @@ function [ dists_out, inds_out ] = knn_update( dists_in, inds_in, k )
 % changed this to make it max similarity search now
 [sort_vals, sort_inds] = sort(dists_in, 2, 'descend');
 
+% for i = 1:k
+%     assert(sort_inds(i) == i);
+% end
+
 % if we don't have enough
-if (numel(sort_inds) < k)
-  
-    num_needed = k - numel(sort_inds);
-    dists_out = [dists_in, realmax * ones(1, num_needed)];
-    inds_out = [inds_in, zeros(1, num_needed)];
-    
-else
+% if (numel(sort_inds) < k)
+%   
+%     num_needed = k - numel(sort_inds);
+%     dists_out = [dists_in, realmax * ones(1, num_needed)];
+%     inds_out = [inds_in, zeros(1, num_needed)];
+%     
+% else
     
     dists_out = sort_vals(:,1:k);
 % TODO: make less stupid
@@ -25,7 +29,7 @@ else
         inds_out(i,:) = inds_in(i,sort_inds(i,1:k));
     end
 
-end
+% end
 
 
 % D=distance(query,reference);

@@ -13,7 +13,6 @@ function d = poly(X, x, h, c, p)
 %   Output 
 %       d - evaluated kernel value
 %--------------------------------------------------------------------------
-% evaluate euclidean part
 
 d = (X'*x/h + c).^p;
 

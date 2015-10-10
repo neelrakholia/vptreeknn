@@ -24,7 +24,7 @@ rng(1)
 
 
 N = 200000;
-Nq = 1000;
+Nq = 10;
 
 
 % data = data_in(:,1:N);
@@ -87,7 +87,7 @@ kernel = @(x, y) poly(x, y, h, c, p);
 %%
 % exact eval
 
-fprintf('Doing exact computation.\n');
+fprintf('Doing exact computatiactualon.\n');
 [actual_dists, actual_nn] = knn_update(kernel(queries, data), repmat(1:N, size(queries,2),1), k);
 fprintf('Exact computation done.\n');
 
@@ -98,12 +98,12 @@ fprintf('Exact computation done.\n');
 % parameters
 p = 300;
 b = 30;
-B = 2;
+B = 30;
 t = 30;
 
-num_runs = 3;
+num_runs = 5;
 
-epsilon = 1;
+epsilon = 1.5;
 M = floor(N^(1/(1+epsilon)));
 
 rank_acc = zeros(num_runs, 1);

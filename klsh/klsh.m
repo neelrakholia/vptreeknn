@@ -4,23 +4,23 @@ function [ rank_acc, dist_acc, dist_evals ] = klsh( queries, references, k, b, B
 [~, num_references] = size(references);
 
 % form the estimated covariance matrix
-references = references(:, randperm(num_references));
+perm_inds = randperm(num_references);
+perm_inds = perm_inds(1:p);
 
 fprintf('\nCreating hash functions\n');
-Kp = kernelfun(references(:,1:p), references(:,1:p));
+Kp = kernelfun(references(:,perm_inds), references(:,perm_inds));
 
 % create the hash matrix
 [~, W] = createHashTable(Kp, t, b);
 
 % now, hash the remaining points
-H_ref = kernelfun(references, references(:,1:p)) * W > 0;
-H_query = kernelfun(queries, references(:,1:p)) * W > 0;
+H_ref = kernelfun(references, references(:,perm_inds)) * W > 0;
+H_query = kernelfun(queries, references(:,perm_inds)) * W > 0;
 
 fprintf('\nFinished hash functions\n');
 
 neighbor_dists = ones(num_queries, k) * -inf;
 neighbor_inds = zeros(num_queries, k);
-
 
 hash_evals = p*p + p * num_references;
 
@@ -75,7 +75,7 @@ for i = 1:M
     
 end
 
-dist_evals = (p*p + num_references*p + num_queries*p + total_comps)/(num_queries*num_references);
+dist_evals = (p*p + num_references*p + num_queries*p + search_evals)/(num_queries*num_references);
 
 end
 
