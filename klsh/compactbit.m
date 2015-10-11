@@ -6,13 +6,13 @@ function cb = compactbit(b)
 
 % Idea is now to always put the whole row in a single MATLAB word
     
-[~, nbits] = size(b);
-% 
-% % powers of 2
-powers = 2.^(0:nbits-1);
- 
-% % now it's just a matvec
-cb = uint64(b * powers');
+[nSamples, nbits] = size(b);
+
+% % % powers of 2
+% powers = 2.^(0:nbits-1);
+%  
+% % % now it's just a matvec
+% cb = uint64(b * powers');
 
 % cb = num2str(b);
 
@@ -23,10 +23,10 @@ cb = uint64(b * powers');
 
 % 
 % 
-% nwords = ceil(nbits/8);
-% cb = zeros([nSamples nwords], 'uint8');
-% 
-% for j = 1:nbits
-%     w = ceil(j/8);
-%     cb(:,w) = bitset(cb(:,w), mod(j-1,8)+1, b(:,j));
-% end
+nwords = ceil(nbits/8);
+cb = zeros([nSamples nwords], 'uint8');
+
+for j = 1:nbits
+    w = ceil(j/8);
+    cb(:,w) = bitset(cb(:,w), mod(j-1,8)+1, b(:,j));
+end
