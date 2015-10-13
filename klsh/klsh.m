@@ -11,7 +11,7 @@ fprintf('\nCreating hash functions\n');
 Kp = kernelfun(references(:,perm_inds), references(:,perm_inds));
 
 % create the hash matrix
-[~, W] = createHashTable(Kp, t, b);
+[~, W] = createHashTable(Kp, b, t);
 
 % now, hash the remaining points
 H_ref = kernelfun(references, references(:,perm_inds)) * W > 0;
@@ -33,18 +33,22 @@ for i = 1:M
     perm = randperm(b);
 
     Compact_ref = compactbit(H_ref(:,perm));
-    [sorted_ref, sort_inds] = sort(Compact_ref);
-    
     Compact_query = compactbit(H_query(:,perm));
-    
 
+    [sorted_ref, sort_inds] = sortrows(Compact_ref);
+    
     % now, get the distances between the queries and their candidates
     dists = -inf * ones(num_queries, 2*B);
     
     for j = 1:num_queries
 
-         lower_inds = find(Compact_query(j,:) < sorted_ref, B);
-         upper_inds = find(Compact_query(j,:) >= sorted_ref, B, 'last');
+        lower_inds = find(bitlt(Compact_query(j,:), sorted_ref), B, 'last');
+        upper_inds = find(~bitlt(Compact_query(j,:), sorted_ref), B);
+        
+    
+
+%          lower_inds = find(Compact_query(j,:) < sorted_ref, B);
+%          upper_inds = find(Compact_query(j,:) >= sorted_ref, B, 'last');
          
          inds = sort_inds(union(lower_inds, upper_inds))';
 %         inds = binarySearch(sorted_ref, Compact_query(j,:));

@@ -87,7 +87,7 @@ kernel = @(x, y) poly(x, y, h, c, p);
 %%
 % exact eval
 
-fprintf('Doing exact computatiactualon.\n');
+fprintf('Doing exact computation.\n');
 [actual_dists, actual_nn] = knn_update(kernel(queries, data), repmat(1:N, size(queries,2),1), k);
 fprintf('Exact computation done.\n');
 
@@ -97,13 +97,13 @@ fprintf('Exact computation done.\n');
 
 % parameters
 p = 300;
-b = 30;
-B = 30;
+b = 300;
+B = 50;
 t = 30;
 
-num_runs = 5;
+num_runs = 1;
 
-epsilon = 1.5;
+epsilon = 0.5;
 M = floor(N^(1/(1+epsilon)));
 
 rank_acc = zeros(num_runs, 1);
